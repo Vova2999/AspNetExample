@@ -36,7 +36,8 @@ public class DepartmentsApiController : ControllerBase
 	{
 		await using var context = _applicationContextFactory.Create();
 
-		var departmentsQuery = context.Departments.AsNoTracking();
+		var departmentsQuery = context.Departments
+			.AsNoTracking();
 
 		if (buildings?.Any() == true)
 			departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
