@@ -1,6 +1,18 @@
 ﻿@model DepartmentsIndexModel
 
 <script>
+    function FormGetRedirect(event) {
+        var params = new URLSearchParams();
+        [...event.srcElement.elements].forEach(item => {
+            if ((item.nodeName === 'INPUT' || item.nodeName === 'SELECT') &&
+                item.value !== undefined && item.value !== null && item.value !== '')
+                params.set(item.name, item.value);
+        });
+
+        window.location.href = event.target.action + (params.size > 0 ? '?' + params : '');
+        event.preventDefault();
+    }
+
     function onDeleteClick() {
         return confirm("Удалить департамент?");
     }
@@ -17,6 +29,37 @@
 </div>
 
 <a asp-action="Create" class="btn btn-sm btn-info" style="margin-top: 5px; width: 160px;">Создать</a>
+
+@using (Html.BeginForm(
+            "Index",
+            "Departments",
+            FormMethod.Get,
+           new { onsubmit = "FormGetRedirect(event);" }))
+{
+    <table>
+        <tr>
+            <td style="align-content: end;">
+                <label asp-for="Buildings">@Html.DisplayNameFor(model => model.Buildings):</label>
+                <input asp-for="Buildings" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="FinancingFrom">@Html.DisplayNameFor(model => model.FinancingFrom):</label>
+                <input asp-for="FinancingFrom" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="FinancingTo">@Html.DisplayNameFor(model => model.FinancingTo):</label>
+                <input asp-for="FinancingTo" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="Names">@Html.DisplayNameFor(model => model.Names):</label>
+                <input asp-for="Names" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <button type="submit" class="btn btn-sm btn-info" style="width: 100px; line-height: 2;">Поиск</button>
+            </td>
+        </tr>
+    </table>
+}
 
 <table class="table">
     <thead>

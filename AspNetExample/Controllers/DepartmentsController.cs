@@ -1,4 +1,5 @@
-﻿using AspNetExample.Database.Context;
+﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
@@ -21,16 +22,32 @@ public class DepartmentsController : Controller
 		_logger = logger;
 	}
 
-	public async Task<IActionResult> Index()
+	public async Task<IActionResult> Index([FromQuery] DepartmentsIndexModel model)
 	{
 		await using var context = _applicationContextFactory.Create();
 
-		var departmentModels = await context.Departments
-			.AsNoTracking()
+		var departmentsQuery = context.Departments
+			.AsNoTracking();
+
+		var buildings = model.Buildings?.SplitAndParse<int>(';', int.TryParse);
+		var financingFrom = model.FinancingFrom;
+		var financingTo = model.FinancingTo;
+		var names = model.Names?.Split(';');
+
+		if (buildings?.Any() == true)
+			departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
+		if (financingFrom.HasValue)
+			departmentsQuery = departmentsQuery.Where(d => d.Financing >= financingFrom);
+		if (financingTo.HasValue)
+			departmentsQuery = departmentsQuery.Where(d => d.Financing <= financingTo);
+		if (names?.Any() == true)
+			departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
+
+		var departments = await departmentsQuery
 			.Select(department => department.ToModel())
 			.ToArrayAsync();
 
-		return View(new DepartmentsIndexModel { Departments = departmentModels });
+		return View(new DepartmentsIndexModel { Departments = departments });
 	}
 
 	public IActionResult Create()

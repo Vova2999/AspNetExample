@@ -18,4 +18,46 @@ public static class StringExtensions
 	{
 		return !string.IsNullOrEmpty(str);
 	}
+
+	public static TResult[] SplitAndParse<TResult>(
+		this string value,
+		char separator,
+		TryParseHandler<TResult> tryParse)
+	{
+		return value.Split(separator).SafeParse(tryParse).ToArray();
+	}
+
+	public static TResult?[] SplitAndParseWithDefaults<TResult>(
+		this string value,
+		char separator,
+		TryParseHandler<TResult> tryParse)
+	{
+		return value.Split(separator).SafeParseWithDefaults(tryParse).ToArray();
+	}
+
+	public static IEnumerable<TResult> SafeParse<TResult>(
+		this IEnumerable<string> values,
+		TryParseHandler<TResult> tryParse)
+	{
+		foreach (var value in values)
+		{
+			if (tryParse(value, out var result))
+				yield return result;
+		}
+	}
+
+	public static IEnumerable<TResult?> SafeParseWithDefaults<TResult>(
+		this IEnumerable<string> values,
+		TryParseHandler<TResult> tryParse)
+	{
+		foreach (var value in values)
+		{
+			if (tryParse(value, out var result))
+				yield return result;
+			else
+				yield return default;
+		}
+	}
+
+	public delegate bool TryParseHandler<T>(string value, out T result);
 }
