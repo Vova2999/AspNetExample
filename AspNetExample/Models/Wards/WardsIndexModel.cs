@@ -4,5 +4,5 @@ namespace AspNetExample.Models.Wards;
 
 public class WardsIndexModel
 {
-	public WardModel[] Wards { get; set; }
+    public WardModel[] Wards { get; set; }
 }

@@ -16,151 +16,151 @@ namespace AspNetExample.Controllers.Api;
 [Produces(MediaTypeNames.Application.Json)]
 public class DepartmentsApiController : ControllerBase
 {
-	private readonly IApplicationContextFactory _applicationContextFactory;
-	private readonly ILogger<DepartmentsApiController> _logger;
+    private readonly IApplicationContextFactory _applicationContextFactory;
+    private readonly ILogger<DepartmentsApiController> _logger;
 
-	public DepartmentsApiController(
-		IApplicationContextFactory applicationContextFactory,
-		ILogger<DepartmentsApiController> logger)
-	{
-		_applicationContextFactory = applicationContextFactory;
-		_logger = logger;
-	}
+    public DepartmentsApiController(
+        IApplicationContextFactory applicationContextFactory,
+        ILogger<DepartmentsApiController> logger)
+    {
+        _applicationContextFactory = applicationContextFactory;
+        _logger = logger;
+    }
 
-	[HttpGet]
-	public async Task<DepartmentDto[]> GetAll(
-		[FromQuery] int[]? buildings,
-		[FromQuery] decimal? financingFrom,
-		[FromQuery] decimal? financingTo,
-		[FromQuery] string[]? names)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpGet]
+    public async Task<DepartmentDto[]> GetAll(
+        [FromQuery] int[]? buildings,
+        [FromQuery] decimal? financingFrom,
+        [FromQuery] decimal? financingTo,
+        [FromQuery] string[]? names)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var departmentsQuery = context.Departments
-			.AsNoTracking();
+        var departmentsQuery = context.Departments
+            .AsNoTracking();
 
-		if (buildings?.Any() == true)
-			departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
-		if (financingFrom.HasValue)
-			departmentsQuery = departmentsQuery.Where(d => d.Financing >= financingFrom);
-		if (financingTo.HasValue)
-			departmentsQuery = departmentsQuery.Where(d => d.Financing <= financingTo);
-		if (names?.Any() == true)
-			departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
+        if (buildings?.Any() == true)
+            departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
+        if (financingFrom.HasValue)
+            departmentsQuery = departmentsQuery.Where(d => d.Financing >= financingFrom);
+        if (financingTo.HasValue)
+            departmentsQuery = departmentsQuery.Where(d => d.Financing <= financingTo);
+        if (names?.Any() == true)
+            departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
 
-		var departments = await departmentsQuery
-			.Select(department => department.ToDto())
-			.ToArrayAsync();
+        var departments = await departmentsQuery
+            .Select(department => department.ToDto())
+            .ToArrayAsync();
 
-		return departments;
-	}
+        return departments;
+    }
 
-	[HttpGet("{id:int}")]
-	public async Task<DepartmentDto> Get(
-		[FromRoute] int id)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpGet("{id:int}")]
+    public async Task<DepartmentDto> Get(
+        [FromRoute] int id)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var department = await context.Departments
-			.AsNoTracking()
-			.FirstOrDefaultAsync(department => department.Id == id);
+        var department = await context.Departments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(department => department.Id == id);
 
-		return department == null
-			? throw new NotFoundException($"Не найден департамент с id = {id}")
-			: department.ToDto();
-	}
+        return department == null
+            ? throw new NotFoundException($"Не найден департамент с id = {id}")
+            : department.ToDto();
+    }
 
-	[HttpPost]
-	public async Task<DepartmentDto> Create(
-		[FromBody] DepartmentDto departmentDto)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpPost]
+    public async Task<DepartmentDto> Create(
+        [FromBody] DepartmentDto departmentDto)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		await ValidateDepartmentModelAsync(context, departmentDto);
-		if (!ModelState.IsValid)
-			throw new BadRequestException(ModelState.JoinErrors());
+        await ValidateDepartmentModelAsync(context, departmentDto);
+        if (!ModelState.IsValid)
+            throw new BadRequestException(ModelState.JoinErrors());
 
-		var department = new Department
-		{
-			Building = departmentDto.Building,
-			Financing = departmentDto.Financing,
-			Name = departmentDto.Name
-		};
+        var department = new Department
+        {
+            Building = departmentDto.Building,
+            Financing = departmentDto.Financing,
+            Name = departmentDto.Name
+        };
 
-		context.Departments.Add(department);
-		await context.SaveChangesAsync();
+        context.Departments.Add(department);
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Department with id = {department.Id} created");
+        _logger.LogInformation($"Department with id = {department.Id} created");
 
-		return department.ToDto();
-	}
+        return department.ToDto();
+    }
 
-	[HttpPut("{id:int}")]
-	public async Task<DepartmentDto> Update(
-		[FromRoute] int id,
-		[FromBody] DepartmentDto departmentDto)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpPut("{id:int}")]
+    public async Task<DepartmentDto> Update(
+        [FromRoute] int id,
+        [FromBody] DepartmentDto departmentDto)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var department = await context.Departments
-			.FirstOrDefaultAsync(department => department.Id == id);
+        var department = await context.Departments
+            .FirstOrDefaultAsync(department => department.Id == id);
 
-		if (department == null)
-			throw new NotFoundException($"Не найден департамент с id = {id}");
+        if (department == null)
+            throw new NotFoundException($"Не найден департамент с id = {id}");
 
-		await ValidateDepartmentModelAsync(context, departmentDto, department.Id);
-		if (!ModelState.IsValid)
-			throw new BadRequestException(ModelState.JoinErrors());
+        await ValidateDepartmentModelAsync(context, departmentDto, department.Id);
+        if (!ModelState.IsValid)
+            throw new BadRequestException(ModelState.JoinErrors());
 
-		department.Building = departmentDto.Building;
-		department.Financing = departmentDto.Financing;
-		department.Name = departmentDto.Name;
+        department.Building = departmentDto.Building;
+        department.Financing = departmentDto.Financing;
+        department.Name = departmentDto.Name;
 
-		await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Department with id = {id} updated");
+        _logger.LogInformation($"Department with id = {id} updated");
 
-		return department.ToDto();
-	}
+        return department.ToDto();
+    }
 
-	[HttpDelete("{id:int}")]
-	public async Task Delete(
-		[FromRoute] int id)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpDelete("{id:int}")]
+    public async Task Delete(
+        [FromRoute] int id)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var department = await context.Departments
-			.FirstOrDefaultAsync(department => department.Id == id);
+        var department = await context.Departments
+            .FirstOrDefaultAsync(department => department.Id == id);
 
-		if (department == null)
-			throw new NotFoundException($"Не найден департамент с id = {id}");
+        if (department == null)
+            throw new NotFoundException($"Не найден департамент с id = {id}");
 
-		context.Departments.Remove(department);
+        context.Departments.Remove(department);
 
-		await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Department with id = {id} deleted");
-	}
+        _logger.LogInformation($"Department with id = {id} deleted");
+    }
 
-	private async Task ValidateDepartmentModelAsync(
-		ApplicationContext context,
-		DepartmentDto? departmentDto,
-		int? currentId = null)
-	{
-		if (departmentDto == null)
-			return;
+    private async Task ValidateDepartmentModelAsync(
+        ApplicationContext context,
+        DepartmentDto? departmentDto,
+        int? currentId = null)
+    {
+        if (departmentDto == null)
+            return;
 
-		if (departmentDto.Building is < 1 or > 5)
-			ModelState.AddModelError(nameof(departmentDto.Building), "Здание должно быть между 1 и 5.");
+        if (departmentDto.Building is < 1 or > 5)
+            ModelState.AddModelError(nameof(departmentDto.Building), "Здание должно быть между 1 и 5.");
 
-		if (departmentDto.Financing < 0)
-			ModelState.AddModelError(nameof(departmentDto.Financing), "Финансирование должно быть положительным.");
+        if (departmentDto.Financing < 0)
+            ModelState.AddModelError(nameof(departmentDto.Financing), "Финансирование должно быть положительным.");
 
-		var hasConflictedName = await context.Departments.AnyAsync(department =>
-			(!currentId.HasValue || department.Id != currentId.Value) &&
-			EF.Functions.Like(departmentDto.Name, department.Name));
+        var hasConflictedName = await context.Departments.AnyAsync(department =>
+            (!currentId.HasValue || department.Id != currentId.Value) &&
+            EF.Functions.Like(departmentDto.Name, department.Name));
 
-		if (hasConflictedName)
-			ModelState.AddModelError(nameof(departmentDto.Name), "Название должно быть уникальным.");
-	}
+        if (hasConflictedName)
+            ModelState.AddModelError(nameof(departmentDto.Name), "Название должно быть уникальным.");
+    }
 }

@@ -2,5 +2,5 @@
 
 public interface IApplicationContextFactory
 {
-	ApplicationContext Create();
+    ApplicationContext Create();
 }

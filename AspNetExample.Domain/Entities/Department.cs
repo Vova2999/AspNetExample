@@ -5,9 +5,9 @@ namespace AspNetExample.Domain.Entities;
 
 public class Department
 {
-	public int Id { get; set; }
-	public int Building { get; set; }
-	public decimal Financing { get; set; }
-	public string Name { get; set; }
-	public ICollection<Ward> Wards { get; set; } = new List<Ward>();
+    public int Id { get; set; }
+    public int Building { get; set; }
+    public decimal Financing { get; set; }
+    public string Name { get; set; }
+    public ICollection<Ward> Wards { get; set; } = new List<Ward>();
 }

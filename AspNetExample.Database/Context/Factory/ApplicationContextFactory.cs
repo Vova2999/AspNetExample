@@ -6,15 +6,15 @@ namespace AspNetExample.Database.Context.Factory;
 
 public class ApplicationContextFactory : IApplicationContextFactory
 {
-	private readonly ILogger<ApplicationContext> _logger;
+    private readonly ILogger<ApplicationContext> _logger;
 
-	public ApplicationContextFactory(ILogger<ApplicationContext> logger)
-	{
-		_logger = logger;
-	}
+    public ApplicationContextFactory(ILogger<ApplicationContext> logger)
+    {
+        _logger = logger;
+    }
 
-	public ApplicationContext Create()
-	{
-		return new ApplicationContext(_logger);
-	}
+    public ApplicationContext Create()
+    {
+        return new ApplicationContext(_logger);
+    }
 }

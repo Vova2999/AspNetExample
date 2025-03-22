@@ -16,159 +16,159 @@ namespace AspNetExample.Controllers.Api;
 [Produces(MediaTypeNames.Application.Json)]
 public class WardsApiController : ControllerBase
 {
-	private readonly IApplicationContextFactory _applicationContextFactory;
-	private readonly ILogger<WardsApiController> _logger;
+    private readonly IApplicationContextFactory _applicationContextFactory;
+    private readonly ILogger<WardsApiController> _logger;
 
-	public WardsApiController(
-		IApplicationContextFactory applicationContextFactory,
-		ILogger<WardsApiController> logger)
-	{
-		_applicationContextFactory = applicationContextFactory;
-		_logger = logger;
-	}
+    public WardsApiController(
+        IApplicationContextFactory applicationContextFactory,
+        ILogger<WardsApiController> logger)
+    {
+        _applicationContextFactory = applicationContextFactory;
+        _logger = logger;
+    }
 
-	[HttpGet]
-	public async Task<WardDto[]> GetAll(
-		[FromQuery] string[]? names,
-		[FromQuery] int? placesFrom,
-		[FromQuery] int? placesTo,
-		[FromQuery] string[]? departmentNames)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpGet]
+    public async Task<WardDto[]> GetAll(
+        [FromQuery] string[]? names,
+        [FromQuery] int? placesFrom,
+        [FromQuery] int? placesTo,
+        [FromQuery] string[]? departmentNames)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var wardsQuery = context.Wards
-			.Include(ward => ward.Department)
-			.AsNoTracking();
+        var wardsQuery = context.Wards
+            .Include(ward => ward.Department)
+            .AsNoTracking();
 
-		if (names != null)
-			wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
-		if (placesFrom != null)
-			wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
-		if (placesTo != null)
-			wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
-		if (departmentNames != null)
-			wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
+        if (names != null)
+            wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
+        if (placesFrom != null)
+            wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
+        if (placesTo != null)
+            wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
+        if (departmentNames != null)
+            wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
 
-		var wards = await wardsQuery.ToArrayAsync();
+        var wards = await wardsQuery.ToArrayAsync();
 
-		return wards.Select(ward => ward.ToDto()).ToArray();
-	}
+        return wards.Select(ward => ward.ToDto()).ToArray();
+    }
 
-	[HttpGet("{id:int}")]
-	public async Task<WardDto> Get(
-		[FromRoute] int id)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpGet("{id:int}")]
+    public async Task<WardDto> Get(
+        [FromRoute] int id)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var ward = await context.Wards
-			.Include(ward => ward.Department)
-			.AsNoTracking()
-			.FirstOrDefaultAsync(ward => ward.Id == id);
+        var ward = await context.Wards
+            .Include(ward => ward.Department)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ward => ward.Id == id);
 
-		return ward == null
-			? throw new NotFoundException($"Не найдена палата с id = {id}")
-			: ward.ToDto();
-	}
+        return ward == null
+            ? throw new NotFoundException($"Не найдена палата с id = {id}")
+            : ward.ToDto();
+    }
 
-	[HttpPost]
-	public async Task<WardDto> Create(
-		[FromBody] WardDto wardDto)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpPost]
+    public async Task<WardDto> Create(
+        [FromBody] WardDto wardDto)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var department = await ValidateWardModelAsync(context, wardDto);
-		if (!ModelState.IsValid)
-			throw new BadRequestException(ModelState.JoinErrors());
+        var department = await ValidateWardModelAsync(context, wardDto);
+        if (!ModelState.IsValid)
+            throw new BadRequestException(ModelState.JoinErrors());
 
-		var ward = new Ward
-		{
-			Name = wardDto.Name,
-			Places = wardDto.Places,
-			DepartmentId = department.Id
-		};
+        var ward = new Ward
+        {
+            Name = wardDto.Name,
+            Places = wardDto.Places,
+            DepartmentId = department.Id
+        };
 
-		context.Wards.Add(ward);
-		await context.SaveChangesAsync();
+        context.Wards.Add(ward);
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Ward with id = {ward.Id} created");
+        _logger.LogInformation($"Ward with id = {ward.Id} created");
 
-		return ward.ToDto();
-	}
+        return ward.ToDto();
+    }
 
-	[HttpPut("{id:int}")]
-	public async Task<WardDto> Update(
-		[FromRoute] int id,
-		[FromBody] WardDto wardDto)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpPut("{id:int}")]
+    public async Task<WardDto> Update(
+        [FromRoute] int id,
+        [FromBody] WardDto wardDto)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var ward = await context.Wards
-			.FirstOrDefaultAsync(ward => ward.Id == id);
+        var ward = await context.Wards
+            .FirstOrDefaultAsync(ward => ward.Id == id);
 
-		if (ward == null)
-			throw new NotFoundException($"Не найдена палата с id = {id}");
+        if (ward == null)
+            throw new NotFoundException($"Не найдена палата с id = {id}");
 
-		var department = await ValidateWardModelAsync(context, wardDto, ward.Id);
-		if (!ModelState.IsValid)
-			throw new BadRequestException(ModelState.JoinErrors());
+        var department = await ValidateWardModelAsync(context, wardDto, ward.Id);
+        if (!ModelState.IsValid)
+            throw new BadRequestException(ModelState.JoinErrors());
 
-		ward.Name = wardDto.Name;
-		ward.Places = wardDto.Places;
-		ward.DepartmentId = department.Id;
+        ward.Name = wardDto.Name;
+        ward.Places = wardDto.Places;
+        ward.DepartmentId = department.Id;
 
-		await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Ward with id = {id} updated");
+        _logger.LogInformation($"Ward with id = {id} updated");
 
-		return ward.ToDto();
-	}
+        return ward.ToDto();
+    }
 
-	[HttpDelete("{id:int}")]
-	public async Task Delete(
-		[FromRoute] int id)
-	{
-		await using var context = _applicationContextFactory.Create();
+    [HttpDelete("{id:int}")]
+    public async Task Delete(
+        [FromRoute] int id)
+    {
+        await using var context = _applicationContextFactory.Create();
 
-		var ward = await context.Wards
-			.FirstOrDefaultAsync(ward => ward.Id == id);
+        var ward = await context.Wards
+            .FirstOrDefaultAsync(ward => ward.Id == id);
 
-		if (ward == null)
-			throw new NotFoundException($"Не найдена палата с id = {id}");
+        if (ward == null)
+            throw new NotFoundException($"Не найдена палата с id = {id}");
 
-		context.Wards.Remove(ward);
+        context.Wards.Remove(ward);
 
-		await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-		_logger.LogInformation($"Ward with id = {id} deleted");
-	}
+        _logger.LogInformation($"Ward with id = {id} deleted");
+    }
 
-	private async Task<Department> ValidateWardModelAsync(
-		ApplicationContext context,
-		WardDto? wardDto,
-		int? currentId = null)
-	{
-		if (wardDto == null)
-			return null!;
+    private async Task<Department> ValidateWardModelAsync(
+        ApplicationContext context,
+        WardDto? wardDto,
+        int? currentId = null)
+    {
+        if (wardDto == null)
+            return null!;
 
-		if (wardDto.Name.Length > 20)
-			ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть строкой с максимальной длиной 20.");
+        if (wardDto.Name.Length > 20)
+            ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть строкой с максимальной длиной 20.");
 
-		if (wardDto.Places <= 0)
-			ModelState.AddModelError(nameof(wardDto.Places), "Количество мест должно быть больше 0.");
+        if (wardDto.Places <= 0)
+            ModelState.AddModelError(nameof(wardDto.Places), "Количество мест должно быть больше 0.");
 
-		var hasConflictedName = await context.Wards.AnyAsync(ward =>
-			(!currentId.HasValue || ward.Id != currentId.Value) &&
-			EF.Functions.Like(wardDto.Name, ward.Name));
+        var hasConflictedName = await context.Wards.AnyAsync(ward =>
+            (!currentId.HasValue || ward.Id != currentId.Value) &&
+            EF.Functions.Like(wardDto.Name, ward.Name));
 
-		if (hasConflictedName)
-			ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
+        if (hasConflictedName)
+            ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
 
-		var department = await context.Departments.FirstOrDefaultAsync(department =>
-			EF.Functions.Like(wardDto.DepartmentName, department.Name));
+        var department = await context.Departments.FirstOrDefaultAsync(department =>
+            EF.Functions.Like(wardDto.DepartmentName, department.Name));
 
-		if (department == null)
-			ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");
+        if (department == null)
+            ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");
 
-		return department!;
-	}
+        return department!;
+    }
 }

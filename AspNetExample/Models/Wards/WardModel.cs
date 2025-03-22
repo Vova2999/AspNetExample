@@ -6,18 +6,18 @@ namespace AspNetExample.Models.Wards;
 
 public class WardModel
 {
-	[DisplayName("Id")]
-	public int Id { get; set; }
+    [DisplayName("Id")]
+    public int Id { get; set; }
 
-	[DisplayName("Название")]
-	public string Name { get; set; }
+    [DisplayName("Название")]
+    public string Name { get; set; }
 
-	[DisplayName("Количество мест")]
-	public int Places { get; set; }
+    [DisplayName("Количество мест")]
+    public int Places { get; set; }
 
-	[DisplayName("Департамент")]
-	public int DepartmentId { get; set; }
+    [DisplayName("Департамент")]
+    public int DepartmentId { get; set; }
 
-	[DisplayName("Название департамента")]
-	public string DepartmentName { get; set; }
+    [DisplayName("Название департамента")]
+    public string DepartmentName { get; set; }
 }

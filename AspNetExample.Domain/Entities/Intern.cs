@@ -5,7 +5,7 @@ namespace AspNetExample.Domain.Entities;
 
 public class Intern
 {
-	public int Id { get; set; }
-	public int DoctorId { get; set; }
-	public Doctor Doctor { get; set; }
+    public int Id { get; set; }
+    public int DoctorId { get; set; }
+    public Doctor Doctor { get; set; }
 }

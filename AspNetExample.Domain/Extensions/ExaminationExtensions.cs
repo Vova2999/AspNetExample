@@ -5,12 +5,12 @@ namespace AspNetExample.Domain.Extensions;
 
 public static class ExaminationExtensions
 {
-	public static ExaminationDto ToDto(this Examination examination)
-	{
-		return new ExaminationDto
-		{
-			Id = examination.Id,
-			Name = examination.Name
-		};
-	}
+    public static ExaminationDto ToDto(this Examination examination)
+    {
+        return new ExaminationDto
+        {
+            Id = examination.Id,
+            Name = examination.Name
+        };
+    }
 }
