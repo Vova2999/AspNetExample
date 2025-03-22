@@ -1,5 +1,6 @@
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
+using AspNetExample.NSwag;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -27,6 +28,15 @@ public static class Program
 			.ConfigureApiBehaviorOptions(options =>
 				options.SuppressModelStateInvalidFilter = true);
 
+		builder.Services
+			.AddOpenApiDocument(settings =>
+			{
+				settings.DocumentName = "AspNetExample";
+				settings.Title = "AspNetExample";
+				settings.Description = "API documentation";
+				settings.OperationProcessors.Insert(0, new OnlyApiOperationProcessor());
+			});
+
 		builder.Services.AddTransient<ApiExceptionHandlerMiddleware>();
 		AspNetExampleModule.RegisterDependencies(builder.Services);
 
@@ -34,8 +44,15 @@ public static class Program
 
 		var app = builder.Build();
 
-		if (!app.Environment.IsDevelopment())
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseOpenApi();
+			app.UseSwaggerUi();
+		}
+		else
+		{
 			app.UseExceptionHandler("/Home/Error");
+		}
 
 		app.UseMiddleware<ApiExceptionHandlerMiddleware>();
 

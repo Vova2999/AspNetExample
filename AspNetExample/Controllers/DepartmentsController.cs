@@ -88,7 +88,7 @@ public class DepartmentsController : Controller
 			return View(model);
 
 		var department = await context.Departments
-            .FirstOrDefaultAsync(department => department.Id == id);
+			.FirstOrDefaultAsync(department => department.Id == id);
 
 		if (department == null)
 			return NotFound();

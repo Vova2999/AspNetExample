@@ -6,7 +6,7 @@ public static class ModelStateDictionaryExtensions
 {
 	public static string JoinErrors(
 		this ModelStateDictionary modelState,
-        string? errorsSeparator = "\n")
+		string? errorsSeparator = "\n")
 	{
 		return string.Join(
 			errorsSeparator,

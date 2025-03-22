@@ -52,7 +52,7 @@ public class WardsApiController : ControllerBase
 		var wards = await wardsQuery.ToArrayAsync();
 
 		return wards.Select(ward => ward.ToDto()).ToArray();
-    }
+	}
 
 	[HttpGet("{id:int}")]
 	public async Task<WardDto> Get(
@@ -68,7 +68,7 @@ public class WardsApiController : ControllerBase
 		return ward == null
 			? throw new NotFoundException($"Не найдена палата с id = {id}")
 			: ward.ToDto();
-    }
+	}
 
 	[HttpPost]
 	public async Task<WardDto> Create(
@@ -92,7 +92,7 @@ public class WardsApiController : ControllerBase
 
 		_logger.LogInformation($"Ward with id = {ward.Id} created");
 
-        return ward.ToDto();
+		return ward.ToDto();
 	}
 
 	[HttpPut("{id:int}")]
@@ -118,7 +118,7 @@ public class WardsApiController : ControllerBase
 
 		await context.SaveChangesAsync();
 
-        _logger.LogInformation($"Ward with id = {id} updated");
+		_logger.LogInformation($"Ward with id = {id} updated");
 
 		return ward.ToDto();
 	}
@@ -130,7 +130,7 @@ public class WardsApiController : ControllerBase
 		await using var context = _applicationContextFactory.Create();
 
 		var ward = await context.Wards
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+			.FirstOrDefaultAsync(ward => ward.Id == id);
 
 		if (ward == null)
 			throw new NotFoundException($"Не найдена палата с id = {id}");
