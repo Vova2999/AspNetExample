@@ -1,0 +1,37 @@
+﻿@model WardModel
+
+<div class="text-center">
+    <h2>Создание палаты</h2>
+</div>
+
+@using (Html.BeginForm(
+            "Create",
+            "Wards",
+            FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="Name">@Html.DisplayNameFor(model => model.Name):</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="Places">@Html.DisplayNameFor(model => model.Places):</label>
+            <input asp-for="Places" class="form-control" />
+            <span asp-validation-for="Places" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="DepartmentId"></label>
+            <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.Departments"></select>
+            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-info" style="width: 200px;">Сохранить</button>
+            <br />
+            <a asp-action="Index" class="btn btn-sm btn-info" style="margin-top: 5px; width: 200px;">Вернуться</a>
+        </div>
+    </div>
+}

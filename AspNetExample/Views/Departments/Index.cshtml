@@ -1,0 +1,57 @@
+﻿@model DepartmentsIndexModel
+
+<script>
+    function onDeleteClick() {
+        return confirm("Удалить департамент?");
+    }
+</script>
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>Департаменты</h2>
+</div>
+
+<a asp-action="Create" class="btn btn-sm btn-info" style="margin-top: 5px; width: 160px;">Создать</a>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Departments.FirstOrDefault()!.Id)</th>
+        <th>@Html.DisplayNameFor(model => model.Departments.FirstOrDefault()!.Building)</th>
+        <th>@Html.DisplayNameFor(model => model.Departments.FirstOrDefault()!.Financing)</th>
+        <th>@Html.DisplayNameFor(model => model.Departments.FirstOrDefault()!.Name)</th>
+        <th />
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var department in Model.Departments)
+    {
+        <tr>
+            <th>@Html.DisplayFor(model => department.Id)</th>
+            <td>@Html.DisplayFor(model => department.Building)</td>
+            <td>@Html.DisplayFor(model => department.Financing)</td>
+            <td>@Html.DisplayFor(model => department.Name)</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px;">Редактировать</a>
+                <br />
+                @using (Html.BeginForm(
+                            "Delete",
+                            "Departments",
+                            new
+                            {
+                                department.Id
+                            },
+                            FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-sm btn-info" style="margin-top: 5px;" onclick="return onDeleteClick();">Удалить</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
