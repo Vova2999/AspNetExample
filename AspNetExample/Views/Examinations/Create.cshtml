@@ -1,0 +1,25 @@
+﻿@model ExaminationModel
+@{
+    ViewData["Title"] = "Создание обследования";
+}
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+@using (Html.BeginForm("Create", "Examinations", FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="Name">@Html.DisplayNameFor(model => model.Name):</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+            <br />
+            <a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>
+        </div>
+    </div>
+}

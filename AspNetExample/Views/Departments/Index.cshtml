@@ -63,7 +63,7 @@
             <td>@Html.DisplayFor(model => department.Building)</td>
             <td>@Html.DisplayFor(model => department.Financing)</td>
             <td>@Html.DisplayFor(model => department.Name)</td>
-            <td>
+            <td style="justify-items: right;">
                 <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
                 @using (Html.BeginForm("Delete", "Departments", new { department.Id }, FormMethod.Post))

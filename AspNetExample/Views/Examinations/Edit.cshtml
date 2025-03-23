@@ -1,0 +1,28 @@
+﻿@model ExaminationModel
+@{
+    ViewData["Title"] = $"Редактирование обследования (id = {Model.Id})";
+}
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+@using (Html.BeginForm("Edit", "Examinations", FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="Name">@Html.DisplayNameFor(model => model.Name):</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+        </div>
+    </div>
+}
+@using (Html.BeginForm("Delete", "Examinations", new { Model.Id }, FormMethod.Post))
+{
+    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 200px;" onclick="return deleteConfirm('обследование', @Model.Id);"><i class="fa fa-trash"></i> Удалить</button>
+}
+<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>

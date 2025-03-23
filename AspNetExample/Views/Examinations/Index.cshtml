@@ -1,6 +1,6 @@
-﻿@model DiseasesIndexModel
+﻿@model ExaminationsIndexModel
 @{
-    ViewData["Title"] = "Болезни";
+    ViewData["Title"] = "Обследования";
 }
 
 <style>
@@ -15,7 +15,7 @@
 
 <a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
 
-@using (Html.BeginForm("Index", "Diseases", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
+@using (Html.BeginForm("Index", "Examinations", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
 {
     <table>
         <tr>
@@ -36,23 +36,23 @@
 <table class="table">
     <thead>
     <tr>
-        <th>@Html.DisplayNameFor(model => model.Diseases!.FirstOrDefault()!.Id)</th>
-        <th>@Html.DisplayNameFor(model => model.Diseases!.FirstOrDefault()!.Name)</th>
+        <th>@Html.DisplayNameFor(model => model.Examinations!.FirstOrDefault()!.Id)</th>
+        <th>@Html.DisplayNameFor(model => model.Examinations!.FirstOrDefault()!.Name)</th>
         <th />
     </tr>
     </thead>
     <tbody>
-    @foreach (var disease in Model.Diseases.EmptyIfNull())
+    @foreach (var examination in Model.Examinations.EmptyIfNull())
     {
         <tr>
-            <th>@Html.DisplayFor(model => disease.Id)</th>
-            <td>@Html.DisplayFor(model => disease.Name)</td>
+            <th>@Html.DisplayFor(model => examination.Id)</th>
+            <td>@Html.DisplayFor(model => examination.Name)</td>
             <td style="justify-items: right;">
-                <a asp-action="Edit" asp-route-id="@disease.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <a asp-action="Edit" asp-route-id="@examination.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
-                @using (Html.BeginForm("Delete", "Diseases", new { disease.Id }, FormMethod.Post))
+                @using (Html.BeginForm("Delete", "Examinations", new { examination.Id }, FormMethod.Post))
                 {
-                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('департамент', @disease.Id);"><i class="fa fa-trash"></i> Удалить</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('обследование', @examination.Id);"><i class="fa fa-trash"></i> Удалить</button>
                 }
             </td>
         </tr>
