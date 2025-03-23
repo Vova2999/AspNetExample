@@ -7,4 +7,9 @@ public static class EnumerableExtensions
         foreach (var value in values)
             action(value);
     }
+
+    public static IEnumerable<TValue> EmptyIfNull<TValue>(this IEnumerable<TValue>? values)
+    {
+        return values ?? [];
+    }
 }

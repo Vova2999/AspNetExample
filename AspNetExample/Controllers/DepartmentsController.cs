@@ -43,11 +43,20 @@ public class DepartmentsController : Controller
         if (names?.Any() == true)
             departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
 
+        var page = Math.Max(Constants.FirstPage, model.Page ?? Constants.FirstPage);
+        var totalCount = departmentsQuery.Count();
         var departments = await departmentsQuery
+            .Skip((page - Constants.FirstPage) * Constants.PageSize)
+            .Take(Constants.PageSize)
             .Select(department => department.ToModel())
             .ToArrayAsync();
 
-        return View(new DepartmentsIndexModel { Departments = departments });
+        return View(new DepartmentsIndexModel
+        {
+            Departments = departments,
+            Page = page,
+            TotalCount = totalCount
+        });
     }
 
     public IActionResult Create()
