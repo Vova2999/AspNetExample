@@ -31,6 +31,10 @@
 
             window.location.href = url;
         }
+
+        function deleteConfirm(entityName, id) {
+            return confirm('Удалить ' + entityName + ' (id = ' + id + ')?');
+        }
     </script>
 </head>
 <body>

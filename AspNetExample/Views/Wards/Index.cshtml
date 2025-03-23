@@ -1,11 +1,5 @@
 ﻿@model WardsIndexModel
 
-<script type="text/javascript">
-    function onDeleteClick() {
-        return confirm("Удалить палату?");
-    }
-</script>
-
 <style>
     table, th, td {
         place-content: center;
@@ -18,11 +12,7 @@
 
 <a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
 
-@using (Html.BeginForm(
-            "Index",
-            "Wards",
-            FormMethod.Get,
-            new { onsubmit = "formGetRedirect(event);" }))
+@using (Html.BeginForm("Index", "Wards", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
 {
     <table>
         <tr>
@@ -71,18 +61,11 @@
             <td>@Html.DisplayFor(model => ward.Places)</td>
             <td>@Html.DisplayFor(model => ward.DepartmentName) (@Html.DisplayFor(model => ward.DepartmentId))</td>
             <td>
-                <a asp-action="Edit" asp-route-id="@ward.Id" class="btn btn-sm btn-info" style="margin-top: 5px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <a asp-action="Edit" asp-route-id="@ward.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
-                @using (Html.BeginForm(
-                            "Delete",
-                            "Wards",
-                            new
-                            {
-                                ward.Id
-                            },
-                            FormMethod.Post))
+                @using (Html.BeginForm("Delete", "Wards", new { ward.Id }, FormMethod.Post))
                 {
-                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px;" onclick="return onDeleteClick();"><i class="fa fa-trash"></i> Удалить</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('палату', @ward.Id);"><i class="fa fa-trash"></i> Удалить</button>
                 }
             </td>
         </tr>

@@ -1,11 +1,5 @@
 ﻿@model DepartmentsIndexModel
 
-<script type="text/javascript">
-    function onDeleteClick() {
-        return confirm("Удалить департамент?");
-    }
-</script>
-
 <style>
     table, th, td {
         place-content: center;
@@ -18,11 +12,7 @@
 
 <a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
 
-@using (Html.BeginForm(
-            "Index",
-            "Departments",
-            FormMethod.Get,
-            new { onsubmit = "formGetRedirect(event);" }))
+@using (Html.BeginForm("Index", "Departments", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
 {
     <table>
         <tr>
@@ -71,18 +61,11 @@
             <td>@Html.DisplayFor(model => department.Financing)</td>
             <td>@Html.DisplayFor(model => department.Name)</td>
             <td>
-                <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
-                @using (Html.BeginForm(
-                            "Delete",
-                            "Departments",
-                            new
-                            {
-                                department.Id
-                            },
-                            FormMethod.Post))
+                @using (Html.BeginForm("Delete", "Departments", new { department.Id }, FormMethod.Post))
                 {
-                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px;" onclick="return onDeleteClick();"><i class="fa fa-trash"></i> Удалить</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('департамент', @department.Id);"><i class="fa fa-trash"></i> Удалить</button>
                 }
             </td>
         </tr>

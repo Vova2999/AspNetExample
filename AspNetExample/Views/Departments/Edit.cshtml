@@ -4,10 +4,7 @@
     <h2>Редактирование департамента (id = @Model.Id)</h2>
 </div>
 
-@using (Html.BeginForm(
-            "Edit",
-            "Departments",
-            FormMethod.Post))
+@using (Html.BeginForm("Edit", "Departments", FormMethod.Post))
 {
     <div>
         <div style="margin-top: 20px;">
@@ -30,8 +27,11 @@
 
         <div style="margin-top: 20px;">
             <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
-            <br />
-            <a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>
         </div>
     </div>
 }
+@using (Html.BeginForm("Delete", "Departments", new { Model.Id }, FormMethod.Post))
+{
+    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 200px;" onclick="return deleteConfirm('департамент', @Model.Id);"><i class="fa fa-trash"></i> Удалить</button>
+}
+<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>

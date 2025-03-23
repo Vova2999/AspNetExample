@@ -40,18 +40,20 @@ public class WardsApiController : ControllerBase
             .Include(ward => ward.Department)
             .AsNoTracking();
 
-        if (names != null)
+        if (names?.Any() == true)
             wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
         if (placesFrom != null)
             wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
         if (placesTo != null)
             wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
-        if (departmentNames != null)
+        if (departmentNames?.Any() == true)
             wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
 
-        var wards = await wardsQuery.ToArrayAsync();
+        var wards = await wardsQuery
+            .Select(ward => ward.ToDto())
+            .ToArrayAsync();
 
-        return wards.Select(ward => ward.ToDto()).ToArray();
+        return wards;
     }
 
     [HttpGet("{id:int}")]
