@@ -9,10 +9,10 @@ public class DepartmentsIndexModel
     [DisplayName("Здания")]
     public string? Buildings { get; set; }
 
-    [DisplayName("Финансирование\u00A0от")]
+    [DisplayName("Финансирование от")]
     public decimal? FinancingFrom { get; set; }
 
-    [DisplayName("Финансирование\u00A0до")]
+    [DisplayName("Финансирование до")]
     public decimal? FinancingTo { get; set; }
 
     [DisplayName("Названия")]

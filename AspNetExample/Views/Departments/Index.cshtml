@@ -1,28 +1,6 @@
 ﻿@model DepartmentsIndexModel
 
-<script>
-    function FormGetRedirect(event) {
-        var params = new URLSearchParams();
-        [...event.srcElement.elements].forEach(item => {
-            if ((item.nodeName === 'INPUT' || item.nodeName === 'SELECT') &&
-                item.value !== undefined && item.value !== null && item.value !== '')
-                params.set(item.name, item.value);
-        });
-
-        window.location.href = event.target.action + (params.size > 0 ? '?' + params : '');
-        event.preventDefault();
-    }
-
-    function ChangePage(page) {
-        const url = new URL(window.location);
-        if (page <= @Constants.FirstPage)
-            url.searchParams.delete('Page');
-        else
-            url.searchParams.set('Page', page);
-
-        window.location.href = url;
-    }
-
+<script type="text/javascript">
     function onDeleteClick() {
         return confirm("Удалить департамент?");
     }
@@ -44,7 +22,7 @@
             "Index",
             "Departments",
             FormMethod.Get,
-            new { onsubmit = "FormGetRedirect(event);" }))
+            new { onsubmit = "formGetRedirect(event);" }))
 {
     <table>
         <tr>
@@ -113,7 +91,7 @@
 </table>
 
 <div>
-    <a onclick="ChangePage(@Model.Page - 1);" class="btn btn-sm btn-outline-primary@(Model.HasPrevPage ? "" : " disabled")"><i class="fa fa-chevron-left"></i> Назад</a>
+    <a onclick="changePage(@Model.Page - 1);" class="btn btn-sm btn-outline-primary@(Model.HasPrevPage ? "" : " disabled")"><i class="fa fa-chevron-left"></i> Назад</a>
     Страница @Model.Page из @Model.TotalPages
-    <a onclick="ChangePage(@Model.Page + 1);" class="btn btn-sm btn-outline-primary@(Model.HasNextPage ? "" : " disabled")">Вперед <i class="fa fa-chevron-right"></i></a>
+    <a onclick="changePage(@Model.Page + 1);" class="btn btn-sm btn-outline-primary@(Model.HasNextPage ? "" : " disabled")">Вперед <i class="fa fa-chevron-right"></i></a>
 </div>

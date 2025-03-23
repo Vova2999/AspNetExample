@@ -1,4 +1,5 @@
-﻿using AspNetExample.Database.Context;
+﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
@@ -22,17 +23,42 @@ public class WardsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery] WardsIndexModel? model)
     {
         await using var context = _applicationContextFactory.Create();
 
-        var wardModels = await context.Wards
+        var wardsQuery = context.Wards
             .Include(ward => ward.Department)
-            .AsNoTracking()
-            .Select(ward => ward.ToModel())
+            .AsNoTracking();
+
+        var names = model?.Names?.Split(';');
+        var placesFrom = model?.PlacesFrom;
+        var placesTo = model?.PlacesTo;
+        var departmentNames = model?.DepartmentNames?.Split(";");
+
+        if (names?.Any() == true)
+            wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
+        if (placesFrom != null)
+            wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
+        if (placesTo != null)
+            wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
+        if (departmentNames != null)
+            wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
+
+        var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
+        var totalCount = wardsQuery.Count();
+        var wards = await wardsQuery
+            .Skip((page - Constants.FirstPage) * Constants.PageSize)
+            .Take(Constants.PageSize)
+            .Select(department => department.ToModel())
             .ToArrayAsync();
 
-        return View(new WardsIndexModel { Wards = wardModels });
+        return View(new WardsIndexModel
+        {
+            Wards = wards,
+            Page = page,
+            TotalCount = totalCount
+        });
     }
 
     public async Task<IActionResult> Create()
@@ -154,23 +180,26 @@ public class WardsController : Controller
     {
         ModelState.Remove(nameof(model.DepartmentName));
 
-        if (model.Name.Length > 20)
-            ModelState.AddModelError(nameof(model.Name), "Название должно быть строкой с максимальной длиной 20.");
-
         if (model.Places <= 0)
             ModelState.AddModelError(nameof(model.Places), "Количество мест должно быть больше 0.");
 
-        var hasConflictedName = await context.Wards.AnyAsync(ward =>
-            (!currentId.HasValue || ward.Id != currentId.Value) &&
-            EF.Functions.Like(model.Name, ward.Name));
+        if (model.Name.IsSignificant())
+        {
+            if (model.Name.Length > 20)
+                ModelState.AddModelError(nameof(model.Name), "Название должно быть строкой с максимальной длиной 20.");
 
-        if (hasConflictedName)
-            ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");
+            var hasConflictedName = await context.Wards.AnyAsync(ward =>
+                (!currentId.HasValue || ward.Id != currentId.Value) &&
+                EF.Functions.Like(model.Name, ward.Name));
+
+            if (hasConflictedName)
+                ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");
+        }
 
         var isDepartmentExists = await context.Departments.AnyAsync(department =>
             department.Id == model.DepartmentId);
 
         if (!isDepartmentExists)
-            ModelState.AddModelError(nameof(model.Name), "Департамент не найден.");
+            ModelState.AddModelError(nameof(model.DepartmentId), "Департамент не найден.");
     }
 }

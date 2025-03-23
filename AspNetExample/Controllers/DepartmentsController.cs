@@ -22,17 +22,17 @@ public class DepartmentsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] DepartmentsIndexModel model)
+    public async Task<IActionResult> Index([FromQuery] DepartmentsIndexModel? model)
     {
         await using var context = _applicationContextFactory.Create();
 
         var departmentsQuery = context.Departments
             .AsNoTracking();
 
-        var buildings = model.Buildings?.SplitAndParse<int>(';', int.TryParse);
-        var financingFrom = model.FinancingFrom;
-        var financingTo = model.FinancingTo;
-        var names = model.Names?.Split(';');
+        var buildings = model?.Buildings?.SplitAndParse<int>(';', int.TryParse);
+        var financingFrom = model?.FinancingFrom;
+        var financingTo = model?.FinancingTo;
+        var names = model?.Names?.Split(';');
 
         if (buildings?.Any() == true)
             departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
@@ -43,7 +43,7 @@ public class DepartmentsController : Controller
         if (names?.Any() == true)
             departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
 
-        var page = Math.Max(Constants.FirstPage, model.Page ?? Constants.FirstPage);
+        var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = departmentsQuery.Count();
         var departments = await departmentsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
@@ -156,11 +156,14 @@ public class DepartmentsController : Controller
         if (model.Financing < 0)
             ModelState.AddModelError(nameof(model.Financing), "Финансирование должно быть положительным.");
 
-        var hasConflictedName = await context.Departments.AnyAsync(department =>
-            (!currentId.HasValue || department.Id != currentId.Value) &&
-            EF.Functions.Like(model.Name, department.Name));
+        if (model.Name.IsSignificant())
+        {
+            var hasConflictedName = await context.Departments.AnyAsync(department =>
+                (!currentId.HasValue || department.Id != currentId.Value) &&
+                EF.Functions.Like(model.Name, department.Name));
 
-        if (hasConflictedName)
-            ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");
+            if (hasConflictedName)
+                ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");
+        }
     }
 }
