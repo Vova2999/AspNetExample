@@ -28,7 +28,7 @@
     <h2>Департаменты</h2>
 </div>
 
-<a asp-action="Create" class="btn btn-sm btn-info" style="margin-top: 5px; width: 160px;">Создать</a>
+<a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
 
 @using (Html.BeginForm(
             "Index",
@@ -55,7 +55,10 @@
                 <input asp-for="Names" class="form-control" />
             </td>
             <td style="align-content: end;">
-                <button type="submit" class="btn btn-sm btn-info" style="width: 100px; line-height: 2;">Поиск</button>
+                <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
+            </td>
+            <td style="align-content: end;">
+                <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
             </td>
         </tr>
     </table>
@@ -80,7 +83,7 @@
             <td>@Html.DisplayFor(model => department.Financing)</td>
             <td>@Html.DisplayFor(model => department.Name)</td>
             <td>
-                <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px;">Редактировать</a>
+                <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
                 @using (Html.BeginForm(
                             "Delete",
@@ -91,7 +94,7 @@
                             },
                             FormMethod.Post))
                 {
-                    <button type="submit" class="btn btn-sm btn-info" style="margin-top: 5px;" onclick="return onDeleteClick();">Удалить</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px;" onclick="return onDeleteClick();"><i class="fa fa-trash"></i> Удалить</button>
                 }
             </td>
         </tr>
