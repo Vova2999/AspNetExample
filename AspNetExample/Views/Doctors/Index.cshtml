@@ -1,0 +1,87 @@
+﻿@model DoctorsIndexModel
+@{
+    ViewData["Title"] = "Доктора";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
+
+@using (Html.BeginForm("Index", "Doctors", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
+{
+    <table>
+        <tr>
+            <td style="align-content: end;">
+                <label asp-for="Names">@Html.DisplayNameFor(model => model.Names):</label>
+                <input asp-for="Names" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="SalaryFrom">@Html.DisplayNameFor(model => model.SalaryFrom):</label>
+                <input asp-for="SalaryFrom" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="SalaryTo">@Html.DisplayNameFor(model => model.SalaryTo):</label>
+                <input asp-for="SalaryTo" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="Surnames">@Html.DisplayNameFor(model => model.Surnames):</label>
+                <input asp-for="Surnames" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
+            </td>
+            <td style="align-content: end;">
+                <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
+            </td>
+        </tr>
+    </table>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Doctors!.FirstOrDefault()!.Id)</th>
+        <th>@Html.DisplayNameFor(model => model.Doctors!.FirstOrDefault()!.Name)</th>
+        <th>@Html.DisplayNameFor(model => model.Doctors!.FirstOrDefault()!.Salary)</th>
+        <th>@Html.DisplayNameFor(model => model.Doctors!.FirstOrDefault()!.Surname)</th>
+        <th />
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var doctor in Model.Doctors.EmptyIfNull())
+    {
+        <tr>
+            <th>@Html.DisplayFor(model => doctor.Id)</th>
+            <td>@Html.DisplayFor(model => doctor.Name)</td>
+            <td>@Html.DisplayFor(model => doctor.Salary)</td>
+            <td>@Html.DisplayFor(model => doctor.Surname)</td>
+            <td style="justify-items: right;">
+                <a asp-action="Edit" asp-route-id="@doctor.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <br />
+                @using (Html.BeginForm("Delete", "Doctors", new { doctor.Id }, FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('доктора', @doctor.Id);"><i class="fa fa-trash"></i> Удалить</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div style="margin-top: 8px;">
+    Количество: @Model.TotalCount
+</div>
+
+<div style="margin-top: 4px;">
+    <a onclick="changePage(@Model.Page - 1);" class="btn btn-sm btn-outline-primary@(Model.HasPrevPage ? "" : " disabled")"><i class="fa fa-chevron-left"></i> Назад</a>
+    Страница @Model.Page из @Model.TotalPages
+    <a onclick="changePage(@Model.Page + 1);" class="btn btn-sm btn-outline-primary@(Model.HasNextPage ? "" : " disabled")">Вперед <i class="fa fa-chevron-right"></i></a>
+</div>
