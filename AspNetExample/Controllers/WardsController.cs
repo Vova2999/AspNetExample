@@ -37,13 +37,13 @@ public class WardsController : Controller
         var departmentNames = model?.DepartmentNames?.Split(";");
 
         if (names?.Any() == true)
-            wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
+            wardsQuery = wardsQuery.Where(ward => names.Contains(ward.Name));
         if (placesFrom != null)
-            wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
+            wardsQuery = wardsQuery.Where(ward => ward.Places >= placesFrom);
         if (placesTo != null)
-            wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
+            wardsQuery = wardsQuery.Where(ward => ward.Places <= placesTo);
         if (departmentNames != null)
-            wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
+            wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = wardsQuery.Count();

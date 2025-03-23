@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using AspNetExample.Common.Extensions;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Dtos;
@@ -40,13 +41,13 @@ public class DepartmentsApiController : ControllerBase
             .AsNoTracking();
 
         if (buildings?.Any() == true)
-            departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
+            departmentsQuery = departmentsQuery.Where(department => buildings.Contains(department.Building));
         if (financingFrom.HasValue)
-            departmentsQuery = departmentsQuery.Where(d => d.Financing >= financingFrom);
+            departmentsQuery = departmentsQuery.Where(department => department.Financing >= financingFrom);
         if (financingTo.HasValue)
-            departmentsQuery = departmentsQuery.Where(d => d.Financing <= financingTo);
+            departmentsQuery = departmentsQuery.Where(department => department.Financing <= financingTo);
         if (names?.Any() == true)
-            departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
+            departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
         var departments = await departmentsQuery
             .Select(department => department.ToDto())
@@ -156,11 +157,14 @@ public class DepartmentsApiController : ControllerBase
         if (departmentDto.Financing < 0)
             ModelState.AddModelError(nameof(departmentDto.Financing), "Финансирование должно быть положительным.");
 
-        var hasConflictedName = await context.Departments.AnyAsync(department =>
-            (!currentId.HasValue || department.Id != currentId.Value) &&
-            EF.Functions.Like(departmentDto.Name, department.Name));
+        if (departmentDto.Name.IsSignificant())
+        {
+            var hasConflictedName = await context.Departments.AnyAsync(department =>
+                (!currentId.HasValue || department.Id != currentId.Value) &&
+                EF.Functions.Like(departmentDto.Name, department.Name));
 
-        if (hasConflictedName)
-            ModelState.AddModelError(nameof(departmentDto.Name), "Название должно быть уникальным.");
+            if (hasConflictedName)
+                ModelState.AddModelError(nameof(departmentDto.Name), "Название должно быть уникальным.");
+        }
     }
 }

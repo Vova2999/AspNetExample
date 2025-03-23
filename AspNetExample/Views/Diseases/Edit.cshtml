@@ -1,27 +1,15 @@
-﻿@model DepartmentModel
+﻿@model DiseaseModel
 @{
-    ViewData["Title"] = $"Редактирование департамента (id = {Model.Id})";
+    ViewData["Title"] = $"Редактирование болезни (id = {Model.Id})";
 }
 
 <div class="text-center">
     <h2>@ViewData["Title"]</h2>
 </div>
 
-@using (Html.BeginForm("Edit", "Departments", FormMethod.Post))
+@using (Html.BeginForm("Edit", "Diseases", FormMethod.Post))
 {
     <div>
-        <div style="margin-top: 20px;">
-            <label asp-for="Building">@Html.DisplayNameFor(model => model.Building):</label>
-            <input asp-for="Building" class="form-control" />
-            <span asp-validation-for="Building" class="text-danger"></span>
-        </div>
-
-        <div style="margin-top: 20px;">
-            <label asp-for="Financing">@Html.DisplayNameFor(model => model.Financing):</label>
-            <input asp-for="Financing" class="form-control" />
-            <span asp-validation-for="Financing" class="text-danger"></span>
-        </div>
-
         <div style="margin-top: 20px;">
             <label asp-for="Name">@Html.DisplayNameFor(model => model.Name):</label>
             <input asp-for="Name" class="form-control" />
@@ -33,7 +21,7 @@
         </div>
     </div>
 }
-@using (Html.BeginForm("Delete", "Departments", new { Model.Id }, FormMethod.Post))
+@using (Html.BeginForm("Delete", "Diseases", new { Model.Id }, FormMethod.Post))
 {
     <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 200px;" onclick="return deleteConfirm('департамент', @Model.Id);"><i class="fa fa-trash"></i> Удалить</button>
 }

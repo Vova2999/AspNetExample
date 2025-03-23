@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using AspNetExample.Common.Extensions;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Dtos;
@@ -41,13 +42,13 @@ public class WardsApiController : ControllerBase
             .AsNoTracking();
 
         if (names?.Any() == true)
-            wardsQuery = wardsQuery.Where(d => names.Contains(d.Name));
+            wardsQuery = wardsQuery.Where(ward => names.Contains(ward.Name));
         if (placesFrom != null)
-            wardsQuery = wardsQuery.Where(d => d.Places >= placesFrom);
+            wardsQuery = wardsQuery.Where(ward => ward.Places >= placesFrom);
         if (placesTo != null)
-            wardsQuery = wardsQuery.Where(d => d.Places <= placesTo);
+            wardsQuery = wardsQuery.Where(ward => ward.Places <= placesTo);
         if (departmentNames?.Any() == true)
-            wardsQuery = wardsQuery.Where(d => departmentNames.Contains(d.Department.Name));
+            wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
         var wards = await wardsQuery
             .Select(ward => ward.ToDto())
@@ -158,19 +159,27 @@ public class WardsApiController : ControllerBase
         if (wardDto.Places <= 0)
             ModelState.AddModelError(nameof(wardDto.Places), "Количество мест должно быть больше 0.");
 
-        var hasConflictedName = await context.Wards.AnyAsync(ward =>
-            (!currentId.HasValue || ward.Id != currentId.Value) &&
-            EF.Functions.Like(wardDto.Name, ward.Name));
+        if (wardDto.Name.IsSignificant())
+        {
+            var hasConflictedName = await context.Wards.AnyAsync(ward =>
+                (!currentId.HasValue || ward.Id != currentId.Value) &&
+                EF.Functions.Like(wardDto.Name, ward.Name));
 
-        if (hasConflictedName)
-            ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
+            if (hasConflictedName)
+                ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
+        }
 
-        var department = await context.Departments.FirstOrDefaultAsync(department =>
-            EF.Functions.Like(wardDto.DepartmentName, department.Name));
+        if (wardDto.DepartmentName.IsSignificant())
+        {
+            var department = await context.Departments.FirstOrDefaultAsync(department =>
+                EF.Functions.Like(wardDto.DepartmentName, department.Name));
 
-        if (department == null)
-            ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");
+            if (department == null)
+                ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");
 
-        return department!;
+            return department!;
+        }
+
+        return null!;
     }
 }

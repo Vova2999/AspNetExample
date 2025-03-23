@@ -1,0 +1,71 @@
+﻿@model DiseasesIndexModel
+@{
+    ViewData["Title"] = "Болезни";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
+
+@using (Html.BeginForm("Index", "Diseases", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
+{
+    <table>
+        <tr>
+            <td style="align-content: end;">
+                <label asp-for="Names">@Html.DisplayNameFor(model => model.Names):</label>
+                <input asp-for="Names" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
+            </td>
+            <td style="align-content: end;">
+                <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
+            </td>
+        </tr>
+    </table>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Diseases!.FirstOrDefault()!.Id)</th>
+        <th>@Html.DisplayNameFor(model => model.Diseases!.FirstOrDefault()!.Name)</th>
+        <th />
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var disease in Model.Diseases.EmptyIfNull())
+    {
+        <tr>
+            <th>@Html.DisplayFor(model => disease.Id)</th>
+            <td>@Html.DisplayFor(model => disease.Name)</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@disease.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <br />
+                @using (Html.BeginForm("Delete", "Diseases", new { disease.Id }, FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('департамент', @disease.Id);"><i class="fa fa-trash"></i> Удалить</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div style="margin-top: 8px;">
+    Количество: @Model.TotalCount
+</div>
+
+<div style="margin-top: 4px;">
+    <a onclick="changePage(@Model.Page - 1);" class="btn btn-sm btn-outline-primary@(Model.HasPrevPage ? "" : " disabled")"><i class="fa fa-chevron-left"></i> Назад</a>
+    Страница @Model.Page из @Model.TotalPages
+    <a onclick="changePage(@Model.Page + 1);" class="btn btn-sm btn-outline-primary@(Model.HasNextPage ? "" : " disabled")">Вперед <i class="fa fa-chevron-right"></i></a>
+</div>

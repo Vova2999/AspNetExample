@@ -35,13 +35,13 @@ public class DepartmentsController : Controller
         var names = model?.Names?.Split(';');
 
         if (buildings?.Any() == true)
-            departmentsQuery = departmentsQuery.Where(d => buildings.Contains(d.Building));
+            departmentsQuery = departmentsQuery.Where(department => buildings.Contains(department.Building));
         if (financingFrom.HasValue)
-            departmentsQuery = departmentsQuery.Where(d => d.Financing >= financingFrom);
+            departmentsQuery = departmentsQuery.Where(department => department.Financing >= financingFrom);
         if (financingTo.HasValue)
-            departmentsQuery = departmentsQuery.Where(d => d.Financing <= financingTo);
+            departmentsQuery = departmentsQuery.Where(department => department.Financing <= financingTo);
         if (names?.Any() == true)
-            departmentsQuery = departmentsQuery.Where(d => names.Contains(d.Name));
+            departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = departmentsQuery.Count();
