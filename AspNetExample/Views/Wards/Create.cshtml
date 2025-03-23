@@ -1,7 +1,10 @@
 ﻿@model WardModel
+@{
+    ViewData["Title"] = "Создание палаты";
+}
 
 <div class="text-center">
-    <h2>Создание палаты</h2>
+    <h2>@ViewData["Title"]</h2>
 </div>
 
 @using (Html.BeginForm("Create", "Wards", FormMethod.Post))

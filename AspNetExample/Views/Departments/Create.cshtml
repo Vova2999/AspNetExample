@@ -1,7 +1,10 @@
 ﻿@model DepartmentModel
+@{
+    ViewData["Title"] = "Создание департамента";
+}
 
 <div class="text-center">
-    <h2>Создание департамента</h2>
+    <h2>@ViewData["Title"]</h2>
 </div>
 
 @using (Html.BeginForm("Create", "Departments", FormMethod.Post))
