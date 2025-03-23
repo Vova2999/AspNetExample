@@ -4,7 +4,7 @@
 
 namespace AspNetExample.Models.Doctors;
 
-public class DoctorsIndexModel
+public class DoctorsIndexModel : PaginationModelBase
 {
     [DisplayName("Имена")]
     public string? Names { get; set; }
@@ -19,14 +19,4 @@ public class DoctorsIndexModel
     public string? Surnames { get; set; }
 
     public DoctorModel[]? Doctors { get; set; }
-
-    public int? Page { get; set; }
-    public int? TotalCount { get; set; }
-
-    public int? TotalPages => TotalCount.HasValue
-        ? (int) Math.Ceiling(TotalCount.Value / (double) Constants.PageSize)
-        : null;
-
-    public bool HasPrevPage => Page is > Constants.FirstPage;
-    public bool HasNextPage => Page.HasValue && Page < TotalPages;
 }
