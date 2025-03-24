@@ -34,6 +34,8 @@ public class DiseasesController : Controller
         if (names?.Any() == true)
             diseasesQuery = diseasesQuery.Where(d => names.Contains(d.Name));
 
+        diseasesQuery = diseasesQuery.OrderBy(disease => disease.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = diseasesQuery.Count();
         var diseases = await diseasesQuery

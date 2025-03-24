@@ -40,6 +40,8 @@ public class ExaminationsApiController : ControllerBase
         if (names?.Any() == true)
             examinationsQuery = examinationsQuery.Where(examination => names.Contains(examination.Name));
 
+        examinationsQuery = examinationsQuery.OrderBy(examination => examination.Id);
+
         var examinations = await examinationsQuery
             .Select(examination => examination.ToDto())
             .ToArrayAsync();

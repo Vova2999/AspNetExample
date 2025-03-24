@@ -41,6 +41,8 @@ public class InternsApiController : ControllerBase
         if (doctorNames?.Any() == true)
             internsQuery = internsQuery.Where(intern => doctorNames.Contains(intern.Doctor.Name));
 
+        internsQuery = internsQuery.OrderBy(intern => intern.Id);
+
         var interns = await internsQuery
             .Select(intern => intern.ToDto())
             .ToArrayAsync();

@@ -40,6 +40,8 @@ public class DiseasesApiController : ControllerBase
         if (names?.Any() == true)
             diseasesQuery = diseasesQuery.Where(disease => names.Contains(disease.Name));
 
+        diseasesQuery = diseasesQuery.OrderBy(disease => disease.Id);
+
         var diseases = await diseasesQuery
             .Select(disease => disease.ToDto())
             .ToArrayAsync();

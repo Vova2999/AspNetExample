@@ -35,6 +35,8 @@ public class ProfessorsController : Controller
         if (doctorNames?.Any() == true)
             professorsQuery = professorsQuery.Where(professor => doctorNames.Contains(professor.Doctor.Name));
 
+        professorsQuery = professorsQuery.OrderBy(professor => professor.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = professorsQuery.Count();
         var professors = await professorsQuery

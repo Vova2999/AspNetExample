@@ -49,6 +49,8 @@ public class DoctorsApiController : ControllerBase
         if (surnames?.Any() == true)
             doctorsQuery = doctorsQuery.Where(doctor => surnames.Contains(doctor.Surname));
 
+        doctorsQuery = doctorsQuery.OrderBy(doctor => doctor.Id);
+
         var doctors = await doctorsQuery
             .Select(doctor => doctor.ToDto())
             .ToArrayAsync();

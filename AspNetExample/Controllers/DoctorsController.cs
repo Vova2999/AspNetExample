@@ -43,6 +43,8 @@ public class DoctorsController : Controller
         if (surnames?.Any() == true)
             doctorsQuery = doctorsQuery.Where(doctor => surnames.Contains(doctor.Surname));
 
+        doctorsQuery = doctorsQuery.OrderBy(doctor => doctor.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = doctorsQuery.Count();
         var doctors = await doctorsQuery

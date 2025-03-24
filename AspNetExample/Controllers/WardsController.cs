@@ -45,6 +45,8 @@ public class WardsController : Controller
         if (departmentNames != null)
             wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
+        wardsQuery = wardsQuery.OrderBy(ward => ward.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = wardsQuery.Count();
         var wards = await wardsQuery

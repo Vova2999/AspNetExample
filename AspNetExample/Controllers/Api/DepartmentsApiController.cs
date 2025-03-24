@@ -49,6 +49,8 @@ public class DepartmentsApiController : ControllerBase
         if (names?.Any() == true)
             departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
+        departmentsQuery = departmentsQuery.OrderBy(department => department.Id);
+
         var departments = await departmentsQuery
             .Select(department => department.ToDto())
             .ToArrayAsync();

@@ -50,6 +50,8 @@ public class WardsApiController : ControllerBase
         if (departmentNames?.Any() == true)
             wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
+        wardsQuery = wardsQuery.OrderBy(ward => ward.Id);
+
         var wards = await wardsQuery
             .Select(ward => ward.ToDto())
             .ToArrayAsync();

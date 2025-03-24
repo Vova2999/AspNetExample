@@ -35,6 +35,8 @@ public class InternsController : Controller
         if (doctorNames?.Any() == true)
             internsQuery = internsQuery.Where(intern => doctorNames.Contains(intern.Doctor.Name));
 
+        internsQuery = internsQuery.OrderBy(intern => intern.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = internsQuery.Count();
         var interns = await internsQuery

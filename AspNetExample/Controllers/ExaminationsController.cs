@@ -34,6 +34,8 @@ public class ExaminationsController : Controller
         if (names?.Any() == true)
             examinationsQuery = examinationsQuery.Where(examination => names.Contains(examination.Name));
 
+        examinationsQuery = examinationsQuery.OrderBy(examination => examination.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = examinationsQuery.Count();
         var examinations = await examinationsQuery

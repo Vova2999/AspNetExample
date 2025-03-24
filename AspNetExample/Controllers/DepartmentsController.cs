@@ -43,6 +43,8 @@ public class DepartmentsController : Controller
         if (names?.Any() == true)
             departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
+        departmentsQuery = departmentsQuery.OrderBy(department => department.Id);
+
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = departmentsQuery.Count();
         var departments = await departmentsQuery

@@ -41,6 +41,8 @@ public class ProfessorsApiController : ControllerBase
         if (doctorNames?.Any() == true)
             professorsQuery = professorsQuery.Where(professor => doctorNames.Contains(professor.Doctor.Name));
 
+        professorsQuery = professorsQuery.OrderBy(professor => professor.Id);
+
         var professors = await professorsQuery
             .Select(professor => professor.ToDto())
             .ToArrayAsync();
