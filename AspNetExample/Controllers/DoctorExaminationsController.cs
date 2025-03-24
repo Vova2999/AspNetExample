@@ -34,8 +34,8 @@ public class DoctorExaminationsController : Controller
             .Include(doctorExamination => doctorExamination.Ward)
             .AsNoTracking();
 
-        var dateFrom = model?.DateFrom;
-        var dateTo = model?.DateTo;
+        var dateFrom = model?.DateFrom?.ToDateOnly();
+        var dateTo = model?.DateTo?.ToDateOnly();
         var diseaseNames = model?.DiseaseNames?.Split(";");
         var doctorNames = model?.DoctorNames?.Split(";");
         var examinationNames = model?.ExaminationNames?.Split(";");
@@ -101,7 +101,7 @@ public class DoctorExaminationsController : Controller
 
         var doctorExamination = new DoctorExamination
         {
-            Date = model.Date,
+            Date = model.Date.ToDateOnly(),
             DiseaseId = model.DiseaseId,
             DoctorId = model.DoctorId,
             ExaminationId = model.ExaminationId,
@@ -160,7 +160,7 @@ public class DoctorExaminationsController : Controller
         if (doctorExamination == null)
             return NotFound();
 
-        doctorExamination.Date = model.Date;
+        doctorExamination.Date = model.Date.ToDateOnly();
         doctorExamination.DiseaseId = model.DiseaseId;
         doctorExamination.DoctorId = model.DoctorId;
         doctorExamination.ExaminationId = model.ExaminationId;
@@ -257,7 +257,7 @@ public class DoctorExaminationsController : Controller
         ModelState.Remove(nameof(model.ExaminationName));
         ModelState.Remove(nameof(model.WardName));
 
-        if (model.Date > DateTime.Now.ToDateOnly())
+        if (model.Date > DateTime.Now)
             ModelState.AddModelError(nameof(model.Date), "Дата должна быть не больше текущей.");
 
         var isDiseaseExists = await context.Diseases.AnyAsync(disease =>

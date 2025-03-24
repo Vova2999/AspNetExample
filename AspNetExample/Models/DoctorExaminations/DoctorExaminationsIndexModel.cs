@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 #pragma warning disable CS8618
 
@@ -7,10 +8,12 @@ namespace AspNetExample.Models.DoctorExaminations;
 public class DoctorExaminationsIndexModel : PaginationModelBase
 {
     [DisplayName("Дата от")]
-    public DateOnly? DateFrom { get; set; }
+    [DataType(DataType.Date)]
+    public DateTime? DateFrom { get; set; }
 
     [DisplayName("Дата до")]
-    public DateOnly? DateTo { get; set; }
+    [DataType(DataType.Date)]
+    public DateTime? DateTo { get; set; }
 
     [DisplayName("Названия болезней")]
     public string? DiseaseNames { get; set; }

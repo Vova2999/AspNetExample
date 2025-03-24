@@ -1,9 +1,11 @@
+using System.ComponentModel;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using AspNetExample.Converters;
 
 namespace AspNetExample;
 
@@ -25,8 +27,12 @@ public static class Program
                 ComponentModelResourceManagerHelper.SetAccessorMessages(
                     options.ModelBindingMessageProvider);
             })
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new DateOnlyCurrentCultureJsonConverter()))
             .ConfigureApiBehaviorOptions(options =>
                 options.SuppressModelStateInvalidFilter = true);
+
+        TypeDescriptor.AddAttributes(typeof(DateOnly), new TypeConverterAttribute(typeof(DateOnlyCurrentCultureConverter)));
 
         builder.Services
             .AddOpenApiDocument(settings =>

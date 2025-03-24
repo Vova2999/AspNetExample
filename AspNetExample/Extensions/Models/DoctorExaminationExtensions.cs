@@ -1,4 +1,5 @@
-﻿using AspNetExample.Domain.Entities;
+﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Domain.Entities;
 using AspNetExample.Models.DoctorExaminations;
 
 namespace AspNetExample.Extensions.Models;
@@ -10,7 +11,7 @@ public static class DoctorExaminationExtensions
         return new DoctorExaminationModel
         {
             Id = doctorExamination.Id,
-            Date = doctorExamination.Date,
+            Date = doctorExamination.Date.ToDateTime(),
             DiseaseId = doctorExamination.DiseaseId,
             DiseaseName = doctorExamination.Disease.Name,
             DoctorId = doctorExamination.DoctorId,

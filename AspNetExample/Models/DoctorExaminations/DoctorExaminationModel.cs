@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 #pragma warning disable CS8618
 
@@ -10,7 +11,8 @@ public class DoctorExaminationModel
     public int Id { get; set; }
 
     [DisplayName("Дата")]
-    public DateOnly Date { get; set; }
+    [DataType(DataType.Date)]
+    public DateTime Date { get; set; }
 
     [DisplayName("Болезнь")]
     public int DiseaseId { get; set; }
