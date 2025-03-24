@@ -1,0 +1,25 @@
+﻿@model InternModel
+@{
+    ViewData["Title"] = "Создание стажера";
+}
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+@using (Html.BeginForm("Create", "Interns", FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="DoctorId"></label>
+            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.Doctors"></select>
+            <span asp-validation-for="DoctorId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+            <br />
+            <a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>
+        </div>
+    </div>
+}
