@@ -52,7 +52,7 @@ public class WardsController : Controller
         var wards = await wardsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
-            .Select(department => department.ToModel())
+            .Select(ward => ward.ToModel())
             .ToArrayAsync();
 
         return View(new WardsIndexModel

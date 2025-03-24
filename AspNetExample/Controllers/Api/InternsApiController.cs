@@ -142,12 +142,14 @@ public class InternsApiController : ControllerBase
         if (internDto == null)
             return null!;
 
+        var currentDoctor = (Doctor?) null;
+
         if (internDto.DoctorName.IsSignificant())
         {
-            var doctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
+            currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
                 EF.Functions.Like(internDto.DoctorName, doctor.Name));
 
-            if (doctor == null)
+            if (currentDoctor == null)
             {
                 ModelState.AddModelError(nameof(internDto.DoctorName), "Доктор не найден.");
             }
@@ -155,15 +157,15 @@ public class InternsApiController : ControllerBase
             {
                 var isAlreadyIntern = await context.Interns.AnyAsync(intern =>
                     (!currentId.HasValue || intern.Id != currentId.Value) &&
-                    intern.DoctorId == doctor.Id);
+                    intern.DoctorId == currentDoctor.Id);
 
                 if (isAlreadyIntern)
                     ModelState.AddModelError(nameof(internDto.DoctorName), "Доктор уже является стажером.");
             }
 
-            return doctor!;
+            return currentDoctor!;
         }
 
-        return null!;
+        return currentDoctor!;
     }
 }

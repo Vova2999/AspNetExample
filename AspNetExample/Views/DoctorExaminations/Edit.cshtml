@@ -1,0 +1,52 @@
+﻿@model DoctorExaminationModel
+@{
+    ViewData["Title"] = $"Редактирование осмотра (id = {Model.Id})";
+}
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+@using (Html.BeginForm("Edit", "DoctorExaminations", FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="Date">@Html.DisplayNameFor(model => model.Date):</label>
+            <input asp-for="Date" class="form-control" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="DiseaseId"></label>
+            <select asp-for="DiseaseId" class="form-control" asp-items="ViewBag.Diseases"></select>
+            <span asp-validation-for="DiseaseId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="DoctorId"></label>
+            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.Doctors"></select>
+            <span asp-validation-for="DoctorId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="ExaminationId"></label>
+            <select asp-for="ExaminationId" class="form-control" asp-items="ViewBag.Examinations"></select>
+            <span asp-validation-for="ExaminationId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="WardId"></label>
+            <select asp-for="WardId" class="form-control" asp-items="ViewBag.Wards"></select>
+            <span asp-validation-for="WardId" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+        </div>
+    </div>
+}
+@using (Html.BeginForm("Delete", "DoctorExaminations", new { Model.Id }, FormMethod.Post))
+{
+    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 200px;" onclick="return deleteConfirm('осмотр', @Model.Id);"><i class="fa fa-trash"></i> Удалить</button>
+}
+<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>

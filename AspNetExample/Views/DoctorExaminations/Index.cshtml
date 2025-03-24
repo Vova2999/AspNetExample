@@ -1,0 +1,99 @@
+﻿@model DoctorExaminationsIndexModel
+@{
+    ViewData["Title"] = "Осмотры";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<a asp-action="Create" class="btn btn-sm btn-primary" style="margin-top: 5px; width: 160px;"><i class="fa fa-plus"></i> Создать</a>
+
+@using (Html.BeginForm("Index", "DoctorExaminations", FormMethod.Get, new { onsubmit = "formGetRedirect(event);" }))
+{
+    <table>
+        <tr>
+            <td style="align-content: end;">
+                <label asp-for="DateFrom">@Html.DisplayNameFor(model => model.DateFrom):</label>
+                <input asp-for="DateFrom" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="DateTo">@Html.DisplayNameFor(model => model.DateTo):</label>
+                <input asp-for="DateTo" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="DiseaseNames">@Html.DisplayNameFor(model => model.DiseaseNames):</label>
+                <input asp-for="DiseaseNames" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="DoctorNames">@Html.DisplayNameFor(model => model.DoctorNames):</label>
+                <input asp-for="DoctorNames" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="ExaminationNames">@Html.DisplayNameFor(model => model.ExaminationNames):</label>
+                <input asp-for="ExaminationNames" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <label asp-for="WardNames">@Html.DisplayNameFor(model => model.WardNames):</label>
+                <input asp-for="WardNames" class="form-control" />
+            </td>
+            <td style="align-content: end;">
+                <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
+            </td>
+            <td style="align-content: end;">
+                <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
+            </td>
+        </tr>
+    </table>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.Id)</th>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.Date)</th>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.DiseaseId)</th>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.DoctorId)</th>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.ExaminationId)</th>
+        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.WardId)</th>
+        <th />
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var doctorExamination in Model.DoctorExaminations.EmptyIfNull())
+    {
+        <tr>
+            <th>@Html.DisplayFor(model => doctorExamination.Id)</th>
+            <td>@Html.DisplayFor(model => doctorExamination.Date)</td>
+            <td>@Html.DisplayFor(model => doctorExamination.DiseaseName) (@Html.DisplayFor(model => doctorExamination.DiseaseId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.DoctorName) (@Html.DisplayFor(model => doctorExamination.DoctorId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.ExaminationName) (@Html.DisplayFor(model => doctorExamination.ExaminationId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.WardName) (@Html.DisplayFor(model => doctorExamination.WardId))</td>
+            <td style="justify-items: right;">
+                <a asp-action="Edit" asp-route-id="@doctorExamination.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
+                <br />
+                @using (Html.BeginForm("Delete", "DoctorExaminations", new { doctorExamination.Id }, FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('осмотр', @doctorExamination.Id);"><i class="fa fa-trash"></i> Удалить</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div style="margin-top: 8px;">
+    Количество: @Model.TotalCount
+</div>
+
+<div style="margin-top: 4px;">
+    <a onclick="changePage(@Model.Page - 1);" class="btn btn-sm btn-outline-primary@(Model.HasPrevPage ? "" : " disabled")"><i class="fa fa-chevron-left"></i> Назад</a>
+    Страница @Model.Page из @Model.TotalPages
+    <a onclick="changePage(@Model.Page + 1);" class="btn btn-sm btn-outline-primary@(Model.HasNextPage ? "" : " disabled")">Вперед <i class="fa fa-chevron-right"></i></a>
+</div>

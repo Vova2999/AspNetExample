@@ -171,17 +171,17 @@ public class WardsApiController : ControllerBase
                 ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
         }
 
+        var currentDepartment = (Department?) null;
+
         if (wardDto.DepartmentName.IsSignificant())
         {
-            var department = await context.Departments.FirstOrDefaultAsync(department =>
+            currentDepartment = await context.Departments.FirstOrDefaultAsync(department =>
                 EF.Functions.Like(wardDto.DepartmentName, department.Name));
 
-            if (department == null)
+            if (currentDepartment == null)
                 ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");
-
-            return department!;
         }
 
-        return null!;
+        return currentDepartment!;
     }
 }

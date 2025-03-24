@@ -24,9 +24,9 @@
 
         function changePage(page) {
             const url = new URL(window.location);
-            if (page <= @Constants.FirstPage)
-                url.searchParams.delete('Page');
-            else
+
+            url.searchParams.delete('Page');
+            if (page > @Constants.FirstPage)
                 url.searchParams.set('Page', page);
 
             window.location.href = url;
@@ -68,6 +68,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Professors" asp-action="Index">Профессоры</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="DoctorExaminations" asp-action="Index">Осмотры</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav flex-grow-1" style="justify-content: right;">
