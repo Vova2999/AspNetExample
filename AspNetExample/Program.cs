@@ -43,7 +43,7 @@ public static class Program
                 settings.OperationProcessors.Insert(0, new OnlyApiOperationProcessor());
             });
 
-        builder.Services.AddTransient<ApiExceptionHandlerMiddleware>();
+        builder.Services.AddSingleton<ApiExceptionHandlerMiddleware>();
         AspNetExampleModule.RegisterDependencies(builder.Services);
 
         builder.Host.UseNLog();
