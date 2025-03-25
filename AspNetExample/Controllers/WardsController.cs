@@ -45,7 +45,18 @@ public class WardsController : Controller
         if (departmentNames != null)
             wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
-        wardsQuery = wardsQuery.OrderBy(ward => ward.Id);
+        wardsQuery = model?.SortBy switch
+        {
+            nameof(WardModel.Id) => wardsQuery.OrderBy(ward => ward.Id),
+            nameof(WardModel.Id) + Constants.DescSuffix => wardsQuery.OrderByDescending(ward => ward.Id),
+            nameof(WardModel.Name) => wardsQuery.OrderBy(ward => ward.Name),
+            nameof(WardModel.Name) + Constants.DescSuffix => wardsQuery.OrderByDescending(ward => ward.Name),
+            nameof(WardModel.Places) => wardsQuery.OrderBy(ward => ward.Places),
+            nameof(WardModel.Places) + Constants.DescSuffix => wardsQuery.OrderByDescending(ward => ward.Places),
+            nameof(WardModel.DepartmentName) => wardsQuery.OrderBy(ward => ward.Department.Name),
+            nameof(WardModel.DepartmentName) + Constants.DescSuffix => wardsQuery.OrderByDescending(ward => ward.Department.Name),
+            _ => wardsQuery.OrderBy(ward => ward.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = wardsQuery.Count();
@@ -58,6 +69,7 @@ public class WardsController : Controller
         return View(new WardsIndexModel
         {
             Wards = wards,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

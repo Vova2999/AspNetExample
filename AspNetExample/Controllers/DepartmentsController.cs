@@ -43,7 +43,18 @@ public class DepartmentsController : Controller
         if (names?.Any() == true)
             departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
-        departmentsQuery = departmentsQuery.OrderBy(department => department.Id);
+        departmentsQuery = model?.SortBy switch
+        {
+            nameof(DepartmentModel.Id) => departmentsQuery.OrderBy(department => department.Id),
+            nameof(DepartmentModel.Id) + Constants.DescSuffix => departmentsQuery.OrderByDescending(department => department.Id),
+            nameof(DepartmentModel.Building) => departmentsQuery.OrderBy(department => department.Building),
+            nameof(DepartmentModel.Building) + Constants.DescSuffix => departmentsQuery.OrderByDescending(department => department.Building),
+            nameof(DepartmentModel.Financing) => departmentsQuery.OrderBy(department => department.Financing),
+            nameof(DepartmentModel.Financing) + Constants.DescSuffix => departmentsQuery.OrderByDescending(department => department.Financing),
+            nameof(DepartmentModel.Name) => departmentsQuery.OrderBy(department => department.Name),
+            nameof(DepartmentModel.Name) + Constants.DescSuffix => departmentsQuery.OrderByDescending(department => department.Name),
+            _ => departmentsQuery.OrderBy(department => department.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = departmentsQuery.Count();
@@ -56,6 +67,7 @@ public class DepartmentsController : Controller
         return View(new DepartmentsIndexModel
         {
             Departments = departments,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

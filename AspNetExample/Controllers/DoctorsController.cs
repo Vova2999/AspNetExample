@@ -43,7 +43,18 @@ public class DoctorsController : Controller
         if (surnames?.Any() == true)
             doctorsQuery = doctorsQuery.Where(doctor => surnames.Contains(doctor.Surname));
 
-        doctorsQuery = doctorsQuery.OrderBy(doctor => doctor.Id);
+        doctorsQuery = model?.SortBy switch
+        {
+            nameof(DoctorModel.Id) => doctorsQuery.OrderBy(doctor => doctor.Id),
+            nameof(DoctorModel.Id) + Constants.DescSuffix => doctorsQuery.OrderByDescending(doctor => doctor.Id),
+            nameof(DoctorModel.Name) => doctorsQuery.OrderBy(doctor => doctor.Name),
+            nameof(DoctorModel.Name) + Constants.DescSuffix => doctorsQuery.OrderByDescending(doctor => doctor.Name),
+            nameof(DoctorModel.Salary) => doctorsQuery.OrderBy(doctor => doctor.Salary),
+            nameof(DoctorModel.Salary) + Constants.DescSuffix => doctorsQuery.OrderByDescending(doctor => doctor.Salary),
+            nameof(DoctorModel.Surname) => doctorsQuery.OrderBy(doctor => doctor.Surname),
+            nameof(DoctorModel.Surname) + Constants.DescSuffix => doctorsQuery.OrderByDescending(doctor => doctor.Surname),
+            _ => doctorsQuery.OrderBy(doctor => doctor.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = doctorsQuery.Count();
@@ -56,6 +67,7 @@ public class DoctorsController : Controller
         return View(new DoctorsIndexModel
         {
             Doctors = doctors,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

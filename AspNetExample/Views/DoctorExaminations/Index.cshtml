@@ -56,13 +56,13 @@
 <table class="table">
     <thead>
     <tr>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.Id)</th>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.Date)</th>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.DiseaseId)</th>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.DoctorId)</th>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.ExaminationId)</th>
-        <th>@Html.DisplayNameFor(model => model.DoctorExaminations!.FirstOrDefault()!.WardId)</th>
-        <th />
+        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations!.FirstOrDefault()!.Id)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations!.FirstOrDefault()!.Date)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations!.FirstOrDefault()!.DiseaseName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations!.FirstOrDefault()!.DoctorName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.ExaminationName), model => model.DoctorExaminations!.FirstOrDefault()!.ExaminationName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.WardName), model => model.DoctorExaminations!.FirstOrDefault()!.WardName)</th>
+        <th style="width: 15%;" />
     </tr>
     </thead>
     <tbody>

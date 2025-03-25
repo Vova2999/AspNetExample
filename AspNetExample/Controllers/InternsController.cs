@@ -35,7 +35,14 @@ public class InternsController : Controller
         if (doctorNames?.Any() == true)
             internsQuery = internsQuery.Where(intern => doctorNames.Contains(intern.Doctor.Name));
 
-        internsQuery = internsQuery.OrderBy(intern => intern.Id);
+        internsQuery = model?.SortBy switch
+        {
+            nameof(InternModel.Id) => internsQuery.OrderBy(intern => intern.Id),
+            nameof(InternModel.Id) + Constants.DescSuffix => internsQuery.OrderByDescending(intern => intern.Id),
+            nameof(InternModel.DoctorName) => internsQuery.OrderBy(intern => intern.Doctor.Name),
+            nameof(InternModel.DoctorName) + Constants.DescSuffix => internsQuery.OrderByDescending(intern => intern.Doctor.Name),
+            _ => internsQuery.OrderBy(intern => intern.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = internsQuery.Count();
@@ -48,6 +55,7 @@ public class InternsController : Controller
         return View(new InternsIndexModel
         {
             Interns = interns,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

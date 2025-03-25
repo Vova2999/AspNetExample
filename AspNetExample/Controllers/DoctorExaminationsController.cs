@@ -54,7 +54,22 @@ public class DoctorExaminationsController : Controller
         if (wardNames?.Any() == true)
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => wardNames.Contains(doctorExamination.Ward.Name));
 
-        doctorExaminationsQuery = doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Id);
+        doctorExaminationsQuery = model?.SortBy switch
+        {
+            nameof(DoctorExaminationModel.Id) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Id),
+            nameof(DoctorExaminationModel.Id) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Id),
+            nameof(DoctorExaminationModel.Date) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Date),
+            nameof(DoctorExaminationModel.Date) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Date),
+            nameof(DoctorExaminationModel.DiseaseName) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Disease.Name),
+            nameof(DoctorExaminationModel.DiseaseName) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Disease.Name),
+            nameof(DoctorExaminationModel.DoctorName) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Doctor.Name),
+            nameof(DoctorExaminationModel.DoctorName) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Doctor.Name),
+            nameof(DoctorExaminationModel.ExaminationName) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Examination.Name),
+            nameof(DoctorExaminationModel.ExaminationName) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Examination.Name),
+            nameof(DoctorExaminationModel.WardName) => doctorExaminationsQuery.OrderBy(doctorExamination => doctorExamination.Ward.Name),
+            nameof(DoctorExaminationModel.WardName) + Constants.DescSuffix => doctorExaminationsQuery.OrderByDescending(doctorExamination => doctorExamination.Ward.Name),
+            _ => doctorExaminationsQuery.OrderBy(ward => ward.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = doctorExaminationsQuery.Count();
@@ -67,6 +82,7 @@ public class DoctorExaminationsController : Controller
         return View(new DoctorExaminationsIndexModel
         {
             DoctorExaminations = doctorExaminations,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

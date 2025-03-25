@@ -34,7 +34,14 @@ public class ExaminationsController : Controller
         if (names?.Any() == true)
             examinationsQuery = examinationsQuery.Where(examination => names.Contains(examination.Name));
 
-        examinationsQuery = examinationsQuery.OrderBy(examination => examination.Id);
+        examinationsQuery = model?.SortBy switch
+        {
+            nameof(ExaminationModel.Id) => examinationsQuery.OrderBy(examination => examination.Id),
+            nameof(ExaminationModel.Id) + Constants.DescSuffix => examinationsQuery.OrderByDescending(examination => examination.Id),
+            nameof(ExaminationModel.Name) => examinationsQuery.OrderBy(examination => examination.Name),
+            nameof(ExaminationModel.Name) + Constants.DescSuffix => examinationsQuery.OrderByDescending(examination => examination.Name),
+            _ => examinationsQuery.OrderBy(examination => examination.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = examinationsQuery.Count();
@@ -47,6 +54,7 @@ public class ExaminationsController : Controller
         return View(new ExaminationsIndexModel
         {
             Examinations = examinations,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

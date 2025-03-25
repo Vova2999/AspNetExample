@@ -18,6 +18,6 @@ public class WardModel
     [DisplayName("Департамент")]
     public int DepartmentId { get; set; }
 
-    [DisplayName("Название департамента")]
+    [DisplayName("Департамент")]
     public string DepartmentName { get; set; }
 }

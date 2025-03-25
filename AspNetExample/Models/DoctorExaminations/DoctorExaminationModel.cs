@@ -17,24 +17,24 @@ public class DoctorExaminationModel
     [DisplayName("Болезнь")]
     public int DiseaseId { get; set; }
 
-    [DisplayName("Название болезни")]
+    [DisplayName("Болезнь")]
     public string DiseaseName { get; set; }
 
     [DisplayName("Доктор")]
     public int DoctorId { get; set; }
 
-    [DisplayName("Имя доктора")]
+    [DisplayName("Доктор")]
     public string DoctorName { get; set; }
 
     [DisplayName("Обследование")]
     public int ExaminationId { get; set; }
 
-    [DisplayName("Название обследования")]
+    [DisplayName("Обследование")]
     public string ExaminationName { get; set; }
 
     [DisplayName("Палата")]
     public int WardId { get; set; }
 
-    [DisplayName("Название палаты")]
+    [DisplayName("Палата")]
     public string WardName { get; set; }
 }

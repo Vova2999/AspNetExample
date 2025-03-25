@@ -34,7 +34,14 @@ public class DiseasesController : Controller
         if (names?.Any() == true)
             diseasesQuery = diseasesQuery.Where(d => names.Contains(d.Name));
 
-        diseasesQuery = diseasesQuery.OrderBy(disease => disease.Id);
+        diseasesQuery = model?.SortBy switch
+        {
+            nameof(DiseaseModel.Id) => diseasesQuery.OrderBy(disease => disease.Id),
+            nameof(DiseaseModel.Id) + Constants.DescSuffix => diseasesQuery.OrderByDescending(disease => disease.Id),
+            nameof(DiseaseModel.Name) => diseasesQuery.OrderBy(disease => disease.Id),
+            nameof(DiseaseModel.Name) + Constants.DescSuffix => diseasesQuery.OrderByDescending(disease => disease.Name),
+            _ => diseasesQuery.OrderBy(department => department.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = diseasesQuery.Count();
@@ -47,6 +54,7 @@ public class DiseasesController : Controller
         return View(new DiseasesIndexModel
         {
             Diseases = diseases,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

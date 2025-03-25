@@ -4,7 +4,7 @@
 
 namespace AspNetExample.Models.Wards;
 
-public class WardsIndexModel : PaginationModelBase
+public class WardsIndexModel : SortingPaginationModelBase
 {
     [DisplayName("Названия")]
     public string? Names { get; set; }

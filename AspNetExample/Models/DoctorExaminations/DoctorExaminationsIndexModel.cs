@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AspNetExample.Models.DoctorExaminations;
 
-public class DoctorExaminationsIndexModel : PaginationModelBase
+public class DoctorExaminationsIndexModel : SortingPaginationModelBase
 {
     [DisplayName("Дата от")]
     [DataType(DataType.Date)]

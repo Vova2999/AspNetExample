@@ -35,7 +35,14 @@ public class ProfessorsController : Controller
         if (doctorNames?.Any() == true)
             professorsQuery = professorsQuery.Where(professor => doctorNames.Contains(professor.Doctor.Name));
 
-        professorsQuery = professorsQuery.OrderBy(professor => professor.Id);
+        professorsQuery = model?.SortBy switch
+        {
+            nameof(ProfessorModel.Id) => professorsQuery.OrderBy(professor => professor.Id),
+            nameof(ProfessorModel.Id) + Constants.DescSuffix => professorsQuery.OrderByDescending(professor => professor.Id),
+            nameof(ProfessorModel.DoctorName) => professorsQuery.OrderBy(professor => professor.Doctor.Name),
+            nameof(ProfessorModel.DoctorName) + Constants.DescSuffix => professorsQuery.OrderByDescending(professor => professor.Doctor.Name),
+            _ => professorsQuery.OrderBy(professor => professor.Id)
+        };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = professorsQuery.Count();
@@ -48,6 +55,7 @@ public class ProfessorsController : Controller
         return View(new ProfessorsIndexModel
         {
             Professors = professors,
+            SortBy = model?.SortBy,
             Page = page,
             TotalCount = totalCount
         });

@@ -4,7 +4,7 @@
 
 namespace AspNetExample.Models.Departments;
 
-public class DepartmentsIndexModel : PaginationModelBase
+public class DepartmentsIndexModel : SortingPaginationModelBase
 {
     [DisplayName("Здания")]
     public string? Buildings { get; set; }

@@ -48,11 +48,11 @@
 <table class="table">
     <thead>
     <tr>
-        <th>@Html.DisplayNameFor(model => model.Departments!.FirstOrDefault()!.Id)</th>
-        <th>@Html.DisplayNameFor(model => model.Departments!.FirstOrDefault()!.Building)</th>
-        <th>@Html.DisplayNameFor(model => model.Departments!.FirstOrDefault()!.Financing)</th>
-        <th>@Html.DisplayNameFor(model => model.Departments!.FirstOrDefault()!.Name)</th>
-        <th />
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Id), model => model.Departments!.FirstOrDefault()!.Id)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Building), model => model.Departments!.FirstOrDefault()!.Building)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Financing), model => model.Departments!.FirstOrDefault()!.Financing)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Name), model => model.Departments!.FirstOrDefault()!.Name)</th>
+        <th style="width: 20%;" />
     </tr>
     </thead>
     <tbody>

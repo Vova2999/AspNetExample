@@ -36,9 +36,9 @@
 <table class="table">
     <thead>
     <tr>
-        <th>@Html.DisplayNameFor(model => model.Examinations!.FirstOrDefault()!.Id)</th>
-        <th>@Html.DisplayNameFor(model => model.Examinations!.FirstOrDefault()!.Name)</th>
-        <th />
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ExaminationModel.Id), model => model.Examinations!.FirstOrDefault()!.Id)</th>
+        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ExaminationModel.Name), model => model.Examinations!.FirstOrDefault()!.Name)</th>
+        <th style="width: 50%;" />
     </tr>
     </thead>
     <tbody>

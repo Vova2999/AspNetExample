@@ -12,6 +12,6 @@ public class InternModel
     [DisplayName("Доктор")]
     public int DoctorId { get; set; }
 
-    [DisplayName("Имя доктора")]
+    [DisplayName("Доктор")]
     public string DoctorName { get; set; }
 }

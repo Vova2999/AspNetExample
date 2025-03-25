@@ -1,7 +1,9 @@
 ﻿namespace AspNetExample.Models;
 
-public class PaginationModelBase
+public class SortingPaginationModelBase
 {
+    public string? SortBy { get; set; }
+
     public int? Page { get; set; }
     public int? TotalCount { get; set; }
 
