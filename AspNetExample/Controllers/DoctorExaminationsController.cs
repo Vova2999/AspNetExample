@@ -88,6 +88,26 @@ public class DoctorExaminationsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var doctorExamination = await context.DoctorsExaminations
+            .Include(doctorExamination => doctorExamination.Disease)
+            .Include(doctorExamination => doctorExamination.Doctor)
+            .Include(doctorExamination => doctorExamination.Examination)
+            .Include(doctorExamination => doctorExamination.Ward)
+            .ThenInclude(ward => ward.Department)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id);
+
+        if (doctorExamination == null)
+            return NotFound();
+
+        return View(doctorExamination.ToDetailsModel());
+    }
+
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();

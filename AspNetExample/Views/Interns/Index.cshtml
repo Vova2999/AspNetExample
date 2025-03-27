@@ -19,25 +19,25 @@
 {
     <table>
         <tr>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DoctorNames">@Html.DisplayNameFor(model => model.DoctorNames):</label>
                 <input asp-for="DoctorNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
             </td>
         </tr>
     </table>
 }
 
-<table class="table">
+<table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(InternModel.Id), model => model.Interns!.FirstOrDefault()!.Id)</th>
-        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(InternModel.DoctorName), model => model.Interns!.FirstOrDefault()!.DoctorName)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(InternModel.Id), model => model.Interns.First().Id)</th>
+        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(InternModel.DoctorName), model => model.Interns.First().DoctorName)</th>
         <th style="width: 50%;" />
     </tr>
     </thead>
@@ -45,9 +45,9 @@
     @foreach (var intern in Model.Interns.EmptyIfNull())
     {
         <tr>
-            <th>@Html.DisplayFor(model => intern.Id)</th>
+            <th><a asp-action="Details" asp-route-id="@intern.Id" class="btn btn-light">@Html.DisplayFor(model => intern.Id)</a></th>
             <td>@Html.DisplayFor(model => intern.DoctorName) (@Html.DisplayFor(model => intern.DoctorId))</td>
-            <td style="justify-items: right;">
+            <td class="text-end">
                 <a asp-action="Edit" asp-route-id="@intern.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
                 @using (Html.BeginForm("Delete", "Interns", new { intern.Id }, FormMethod.Post))

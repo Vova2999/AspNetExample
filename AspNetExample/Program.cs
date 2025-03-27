@@ -1,11 +1,11 @@
 using System.ComponentModel;
+using AspNetExample.Converters;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
-using AspNetExample.Converters;
 
 namespace AspNetExample;
 

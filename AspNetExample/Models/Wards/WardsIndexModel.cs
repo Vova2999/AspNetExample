@@ -18,5 +18,5 @@ public class WardsIndexModel : SortingPaginationModelBase
     [DisplayName("Названия департаментов")]
     public string? DepartmentNames { get; set; }
 
-    public WardModel[]? Wards { get; set; }
+    public WardModel[] Wards { get; set; }
 }

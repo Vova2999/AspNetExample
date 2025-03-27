@@ -9,5 +9,5 @@ public class ProfessorsIndexModel : SortingPaginationModelBase
     [DisplayName("Имена докторов")]
     public string? DoctorNames { get; set; }
 
-    public ProfessorModel[]? Professors { get; set; }
+    public ProfessorModel[] Professors { get; set; }
 }

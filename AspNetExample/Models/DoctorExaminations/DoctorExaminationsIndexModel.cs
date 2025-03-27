@@ -27,5 +27,5 @@ public class DoctorExaminationsIndexModel : SortingPaginationModelBase
     [DisplayName("Названия палат")]
     public string? WardNames { get; set; }
 
-    public DoctorExaminationModel[]? DoctorExaminations { get; set; }
+    public DoctorExaminationModel[] DoctorExaminations { get; set; }
 }

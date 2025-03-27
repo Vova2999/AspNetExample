@@ -73,6 +73,29 @@ public class DoctorsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var doctor = await context.Doctors
+            .Include(doctor => doctor.Interns)
+            .Include(doctor => doctor.Professors)
+            .Include(doctor => doctor.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Disease)
+            .Include(disease => disease.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Examination)
+            .Include(disease => disease.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Ward)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+
+        if (doctor == null)
+            return NotFound();
+
+        return View(doctor.ToDetailsModel());
+    }
+
     public IActionResult Create()
     {
         return View(new DoctorModel());

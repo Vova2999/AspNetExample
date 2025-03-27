@@ -19,40 +19,40 @@
 {
     <table>
         <tr>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DoctorNames">@Html.DisplayNameFor(model => model.DoctorNames):</label>
                 <input asp-for="DoctorNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
             </td>
         </tr>
     </table>
 }
 
-<table class="table">
+<table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.Id), model => model.Professors!.FirstOrDefault()!.Id)</th>
-        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.DoctorName), model => model.Professors!.FirstOrDefault()!.DoctorName)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.Id), model => model.Professors.First().Id)</th>
+        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.DoctorName), model => model.Professors.First().DoctorName)</th>
         <th style="width: 50%;" />
     </tr>
     </thead>
     <tbody>
-    @foreach (var intern in Model.Professors.EmptyIfNull())
+    @foreach (var professor in Model.Professors.EmptyIfNull())
     {
         <tr>
-            <th>@Html.DisplayFor(model => intern.Id)</th>
-            <td>@Html.DisplayFor(model => intern.DoctorName) (@Html.DisplayFor(model => intern.DoctorId))</td>
-            <td style="justify-items: right;">
-                <a asp-action="Edit" asp-route-id="@intern.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
+            <th><a asp-action="Details" asp-route-id="@professor.Id" class="btn btn-light">@Html.DisplayFor(model => professor.Id)</a></th>
+            <td>@Html.DisplayFor(model => professor.DoctorName) (@Html.DisplayFor(model => professor.DoctorId))</td>
+            <td class="text-end">
+                <a asp-action="Edit" asp-route-id="@professor.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
-                @using (Html.BeginForm("Delete", "Professors", new { intern.Id }, FormMethod.Post))
+                @using (Html.BeginForm("Delete", "Professors", new { professor.Id }, FormMethod.Post))
                 {
-                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('профессора', @intern.Id);"><i class="fa fa-trash"></i> Удалить</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 140px;" onclick="return deleteConfirm('профессора', @professor.Id);"><i class="fa fa-trash"></i> Удалить</button>
                 }
             </td>
         </tr>

@@ -9,5 +9,5 @@ public class DiseasesIndexModel : SortingPaginationModelBase
     [DisplayName("Названия")]
     public string? Names { get; set; }
 
-    public DiseaseModel[]? Diseases { get; set; }
+    public DiseaseModel[] Diseases { get; set; }
 }

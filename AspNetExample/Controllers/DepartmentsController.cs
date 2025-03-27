@@ -73,6 +73,22 @@ public class DepartmentsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var department = await context.Departments
+            .Include(department => department.Wards)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(department => department.Id == id);
+
+        if (department == null)
+            return NotFound();
+
+        return View(department.ToDetailsModel());
+    }
+
     public IActionResult Create()
     {
         return View(new DepartmentModel());

@@ -22,4 +22,16 @@ public static class DoctorExaminationExtensions
             WardName = doctorExamination.Ward.Name
         };
     }
+
+    public static DoctorExaminationDetailsModel ToDetailsModel(this DoctorExamination doctorExamination)
+    {
+        return new DoctorExaminationDetailsModel
+        {
+            DoctorExamination = doctorExamination.ToModel(),
+            Disease = doctorExamination.Disease.ToModel(),
+            Doctor = doctorExamination.Doctor.ToModel(),
+            Examination = doctorExamination.Examination.ToModel(),
+            Ward = doctorExamination.Ward.ToModel()
+        };
+    }
 }

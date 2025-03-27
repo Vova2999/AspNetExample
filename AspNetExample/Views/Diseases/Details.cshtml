@@ -1,0 +1,50 @@
+﻿@model DiseaseDetailsModel
+@{
+    ViewData["Title"] = $"Болезнь (id = {Model.Disease.Id})";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<table class="props-table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Disease.Name):</th>
+        <td>@Html.DisplayFor(model => model.Disease.Name)</td>
+    </tr>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.DoctorExaminations)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 10%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().Id)</th>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().Date)</th>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().DiseaseName)</th>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().DoctorName)</th>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().ExaminationName)</th>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.DoctorExaminations.First().WardName)</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var doctorExamination in Model.DoctorExaminations.EmptyIfNull())
+    {
+        <tr>
+            <th><a asp-controller="DoctorExaminations" asp-action="Details" asp-route-id="@doctorExamination.Id" class="btn btn-light">@Html.DisplayFor(model => doctorExamination.Id)</a></th>
+            <td>@Html.DisplayFor(model => doctorExamination.Date)</td>
+            <td>@Html.DisplayFor(model => doctorExamination.DiseaseName) (@Html.DisplayFor(model => doctorExamination.DiseaseId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.DoctorName) (@Html.DisplayFor(model => doctorExamination.DoctorId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.ExaminationName) (@Html.DisplayFor(model => doctorExamination.ExaminationId))</td>
+            <td>@Html.DisplayFor(model => doctorExamination.WardName) (@Html.DisplayFor(model => doctorExamination.WardId))</td>
+        </tr>
+    }
+    </tbody>
+</table>

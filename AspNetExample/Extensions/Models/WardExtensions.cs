@@ -16,4 +16,17 @@ public static class WardExtensions
             DepartmentName = ward.Department.Name
         };
     }
+
+    public static WardDetailsModel ToDetailsModel(this Ward ward)
+    {
+        return new WardDetailsModel
+        {
+            Ward = ward.ToModel(),
+            Department = ward.Department.ToModel(),
+            DoctorExaminations = ward.DoctorsExaminations
+                .OrderBy(doctorExamination => doctorExamination.Id)
+                .Select(doctorExamination => doctorExamination.ToModel())
+                .ToArray()
+        };
+    }
 }

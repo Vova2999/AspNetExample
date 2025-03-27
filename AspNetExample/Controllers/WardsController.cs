@@ -75,6 +75,29 @@ public class WardsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var ward = await context.Wards
+            .Include(ward => ward.Department)
+            .Include(ward => ward.DoctorsExaminations)
+            .Include(examination => examination.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Disease)
+            .Include(examination => examination.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Doctor)
+            .Include(disease => disease.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Examination)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ward => ward.Id == id);
+
+        if (ward == null)
+            return NotFound();
+
+        return View(ward.ToDetailsModel());
+    }
+
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();

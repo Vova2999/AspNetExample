@@ -13,4 +13,16 @@ public static class ExaminationExtensions
             Name = examination.Name
         };
     }
+
+    public static ExaminationDetailsModel ToDetailsModel(this Examination examination)
+    {
+        return new ExaminationDetailsModel
+        {
+            Examination = examination.ToModel(),
+            DoctorExaminations = examination.DoctorsExaminations
+                .OrderBy(doctorExamination => doctorExamination.Id)
+                .Select(doctorExamination => doctorExamination.ToModel())
+                .ToArray()
+        };
+    }
 }

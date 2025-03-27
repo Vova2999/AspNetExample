@@ -19,39 +19,39 @@
 {
     <table>
         <tr>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="Buildings">@Html.DisplayNameFor(model => model.Buildings):</label>
                 <input asp-for="Buildings" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="FinancingFrom">@Html.DisplayNameFor(model => model.FinancingFrom):</label>
                 <input asp-for="FinancingFrom" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="FinancingTo">@Html.DisplayNameFor(model => model.FinancingTo):</label>
                 <input asp-for="FinancingTo" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="Names">@Html.DisplayNameFor(model => model.Names):</label>
                 <input asp-for="Names" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
             </td>
         </tr>
     </table>
 }
 
-<table class="table">
+<table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Id), model => model.Departments!.FirstOrDefault()!.Id)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Building), model => model.Departments!.FirstOrDefault()!.Building)</th>
-        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Financing), model => model.Departments!.FirstOrDefault()!.Financing)</th>
-        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Name), model => model.Departments!.FirstOrDefault()!.Name)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Id), model => model.Departments.First().Id)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Building), model => model.Departments.First().Building)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Financing), model => model.Departments.First().Financing)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DepartmentModel.Name), model => model.Departments.First().Name)</th>
         <th style="width: 20%;" />
     </tr>
     </thead>
@@ -59,11 +59,11 @@
     @foreach (var department in Model.Departments.EmptyIfNull())
     {
         <tr>
-            <th>@Html.DisplayFor(model => department.Id)</th>
+            <th><a asp-action="Details" asp-route-id="@department.Id" class="btn btn-light">@Html.DisplayFor(model => department.Id)</a></th>
             <td>@Html.DisplayFor(model => department.Building)</td>
             <td>@Html.DisplayFor(model => department.Financing)</td>
             <td>@Html.DisplayFor(model => department.Name)</td>
-            <td style="justify-items: right;">
+            <td class="text-end">
                 <a asp-action="Edit" asp-route-id="@department.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
                 @using (Html.BeginForm("Delete", "Departments", new { department.Id }, FormMethod.Post))

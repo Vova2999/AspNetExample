@@ -11,7 +11,16 @@ public static class ProfessorExtensions
         {
             Id = professor.Id,
             DoctorId = professor.DoctorId,
-            DoctorName = professor.Doctor.Name,
+            DoctorName = professor.Doctor.Name
+        };
+    }
+
+    public static ProfessorDetailsModel ToDetailsModel(this Professor professor)
+    {
+        return new ProfessorDetailsModel
+        {
+            Professor = professor.ToModel(),
+            Doctor = professor.Doctor.ToModel()
         };
     }
 }

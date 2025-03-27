@@ -9,5 +9,5 @@ public class ExaminationsIndexModel : SortingPaginationModelBase
     [DisplayName("Названия")]
     public string? Names { get; set; }
 
-    public ExaminationModel[]? Examinations { get; set; }
+    public ExaminationModel[] Examinations { get; set; }
 }

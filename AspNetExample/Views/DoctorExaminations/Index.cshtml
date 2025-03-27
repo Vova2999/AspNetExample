@@ -19,49 +19,49 @@
 {
     <table>
         <tr>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DateFrom">@Html.DisplayNameFor(model => model.DateFrom):</label>
                 <input asp-for="DateFrom" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DateTo">@Html.DisplayNameFor(model => model.DateTo):</label>
                 <input asp-for="DateTo" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DiseaseNames">@Html.DisplayNameFor(model => model.DiseaseNames):</label>
                 <input asp-for="DiseaseNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="DoctorNames">@Html.DisplayNameFor(model => model.DoctorNames):</label>
                 <input asp-for="DoctorNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="ExaminationNames">@Html.DisplayNameFor(model => model.ExaminationNames):</label>
                 <input asp-for="ExaminationNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <label asp-for="WardNames">@Html.DisplayNameFor(model => model.WardNames):</label>
                 <input asp-for="WardNames" class="form-control" />
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <button type="submit" class="btn btn-sm btn-success" style="width: 100px; line-height: 2;"><i class="fa fa-search"></i> Поиск</button>
             </td>
-            <td style="align-content: end;">
+            <td class="align-content-end">
                 <a asp-action="Index" class="btn btn-sm btn-default" style="width: 100px; line-height: 2;"><i class="fa fa-times"></i> Сбросить</a>
             </td>
         </tr>
     </table>
 }
 
-<table class="table">
+<table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations!.FirstOrDefault()!.Id)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations!.FirstOrDefault()!.Date)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations!.FirstOrDefault()!.DiseaseName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations!.FirstOrDefault()!.DoctorName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.ExaminationName), model => model.DoctorExaminations!.FirstOrDefault()!.ExaminationName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.WardName), model => model.DoctorExaminations!.FirstOrDefault()!.WardName)</th>
+        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations.First().Id)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations.First().Date)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations.First().DiseaseName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations.First().DoctorName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.ExaminationName), model => model.DoctorExaminations.First().ExaminationName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.WardName), model => model.DoctorExaminations.First().WardName)</th>
         <th style="width: 15%;" />
     </tr>
     </thead>
@@ -69,13 +69,13 @@
     @foreach (var doctorExamination in Model.DoctorExaminations.EmptyIfNull())
     {
         <tr>
-            <th>@Html.DisplayFor(model => doctorExamination.Id)</th>
+            <th><a asp-action="Details" asp-route-id="@doctorExamination.Id" class="btn btn-light">@Html.DisplayFor(model => doctorExamination.Id)</a></th>
             <td>@Html.DisplayFor(model => doctorExamination.Date)</td>
             <td>@Html.DisplayFor(model => doctorExamination.DiseaseName) (@Html.DisplayFor(model => doctorExamination.DiseaseId))</td>
             <td>@Html.DisplayFor(model => doctorExamination.DoctorName) (@Html.DisplayFor(model => doctorExamination.DoctorId))</td>
             <td>@Html.DisplayFor(model => doctorExamination.ExaminationName) (@Html.DisplayFor(model => doctorExamination.ExaminationId))</td>
             <td>@Html.DisplayFor(model => doctorExamination.WardName) (@Html.DisplayFor(model => doctorExamination.WardId))</td>
-            <td style="justify-items: right;">
+            <td class="text-end">
                 <a asp-action="Edit" asp-route-id="@doctorExamination.Id" class="btn btn-sm btn-info" style="margin-top: 5px; width: 140px;"><i class="fa fa-pencil"></i> Редактировать</a>
                 <br />
                 @using (Html.BeginForm("Delete", "DoctorExaminations", new { doctorExamination.Id }, FormMethod.Post))

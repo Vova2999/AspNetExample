@@ -18,5 +18,5 @@ public class DepartmentsIndexModel : SortingPaginationModelBase
     [DisplayName("Названия")]
     public string? Names { get; set; }
 
-    public DepartmentModel[]? Departments { get; set; }
+    public DepartmentModel[] Departments { get; set; }
 }

@@ -1,0 +1,101 @@
+﻿@model DoctorExaminationDetailsModel
+@{
+    ViewData["Title"] = $"Осмотр (id = {Model.DoctorExamination.Id})";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<table class="props-table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DoctorExamination.Date):</th>
+        <td>@Html.DisplayFor(model => model.DoctorExamination.Date)</td>
+    </tr>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.Disease)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Disease.Id)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Disease.Name)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th><a asp-controller="Diseases" asp-action="Details" asp-route-id="@Model.Disease.Id" class="btn btn-light">@Html.DisplayFor(model => model.Disease.Id)</a></th>
+        <td>@Html.DisplayFor(model => model.Disease.Name)</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.Doctor)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Doctor.Id)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Doctor.Name)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Doctor.Salary)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Doctor.Surname)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th><a asp-controller="Doctors" asp-action="Details" asp-route-id="@Model.Doctor.Id" class="btn btn-light">@Html.DisplayFor(model => model.Doctor.Id)</a></th>
+        <td>@Html.DisplayFor(model => model.Doctor.Name)</td>
+        <td>@Html.DisplayFor(model => model.Doctor.Salary)</td>
+        <td>@Html.DisplayFor(model => model.Doctor.Surname)</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.Examination)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Examination.Id)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Examination.Name)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th><a asp-controller="Examinations" asp-action="Details" asp-route-id="@Model.Examination.Id" class="btn btn-light">@Html.DisplayFor(model => model.Examination.Id)</a></th>
+        <td>@Html.DisplayFor(model => model.Examination.Name)</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.Ward)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Ward.Id)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Ward.Name)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Ward.Places)</th>
+        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Ward.DepartmentName)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th><a asp-controller="Wards" asp-action="Details" asp-route-id="@Model.Ward.Id" class="btn btn-light">@Html.DisplayFor(model => model.Ward.Id)</a></th>
+        <td>@Html.DisplayFor(model => model.Ward.Name)</td>
+        <td>@Html.DisplayFor(model => model.Ward.Places)</td>
+        <td>@Html.DisplayFor(model => model.Ward.DepartmentName) (@Html.DisplayFor(model => model.Ward.DepartmentId))</td>
+    </tr>
+    </tbody>
+</table>

@@ -61,6 +61,22 @@ public class InternsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var intern = await context.Interns
+            .Include(intern => intern.Doctor)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(intern => intern.Id == id);
+
+        if (intern == null)
+            return NotFound();
+
+        return View(intern.ToDetailsModel());
+    }
+
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();

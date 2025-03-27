@@ -15,4 +15,24 @@ public static class DoctorExtensions
             Surname = doctor.Surname
         };
     }
+
+    public static DoctorDetailsModel ToDetailsModel(this Doctor doctor)
+    {
+        return new DoctorDetailsModel
+        {
+            Doctor = doctor.ToModel(),
+            Interns = doctor.Interns
+                .OrderBy(intern => intern.Id)
+                .Select(intern => intern.ToModel())
+                .ToArray(),
+            Professors = doctor.Professors
+                .OrderBy(professor => professor.Id)
+                .Select(professor => professor.ToModel())
+                .ToArray(),
+            DoctorExaminations = doctor.DoctorsExaminations
+                .OrderBy(doctorExamination => doctorExamination.Id)
+                .Select(doctorExamination => doctorExamination.ToModel())
+                .ToArray()
+        };
+    }
 }

@@ -60,6 +60,27 @@ public class ExaminationsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var examination = await context.Examinations
+            .Include(examination => examination.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Disease)
+            .Include(examination => examination.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Doctor)
+            .Include(disease => disease.DoctorsExaminations)
+            .ThenInclude(doctorExamination => doctorExamination.Ward)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(examination => examination.Id == id);
+
+        if (examination == null)
+            return NotFound();
+
+        return View(examination.ToDetailsModel());
+    }
+
     public IActionResult Create()
     {
         return View(new ExaminationModel());

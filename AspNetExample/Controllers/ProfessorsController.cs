@@ -61,6 +61,22 @@ public class ProfessorsController : Controller
         });
     }
 
+    [HttpGet("[controller]/[action]/{id:int}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var professor = await context.Professors
+            .Include(professor => professor.Doctor)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(professor => professor.Id == id);
+
+        if (professor == null)
+            return NotFound();
+
+        return View(professor.ToDetailsModel());
+    }
+
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();

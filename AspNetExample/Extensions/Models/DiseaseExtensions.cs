@@ -13,4 +13,16 @@ public static class DiseaseExtensions
             Name = disease.Name
         };
     }
+
+    public static DiseaseDetailsModel ToDetailsModel(this Disease disease)
+    {
+        return new DiseaseDetailsModel
+        {
+            Disease = disease.ToModel(),
+            DoctorExaminations = disease.DoctorsExaminations
+                .OrderBy(doctorExamination => doctorExamination.Id)
+                .Select(doctorExamination => doctorExamination.ToModel())
+                .ToArray()
+        };
+    }
 }

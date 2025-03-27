@@ -11,7 +11,16 @@ public static class InternExtensions
         {
             Id = intern.Id,
             DoctorId = intern.DoctorId,
-            DoctorName = intern.Doctor.Name,
+            DoctorName = intern.Doctor.Name
+        };
+    }
+
+    public static InternDetailsModel ToDetailsModel(this Intern intern)
+    {
+        return new InternDetailsModel
+        {
+            Intern = intern.ToModel(),
+            Doctor = intern.Doctor.ToModel()
         };
     }
 }

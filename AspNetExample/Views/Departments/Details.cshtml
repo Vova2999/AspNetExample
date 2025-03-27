@@ -1,0 +1,52 @@
+﻿@model DepartmentDetailsModel
+@{
+    ViewData["Title"] = $"Департамент (id = {Model.Department.Id})";
+}
+
+<style>
+    table, th, td {
+        place-content: center;
+    }
+</style>
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+<table class="props-table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Department.Building):</th>
+        <td>@Html.DisplayFor(model => model.Department.Building)</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Department.Financing):</th>
+        <td>@Html.DisplayFor(model => model.Department.Financing)</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Department.Name):</th>
+        <td>@Html.DisplayFor(model => model.Department.Name)</td>
+    </tr>
+</table>
+
+<div class="props-margin-top">
+    <h3>@Html.DisplayNameFor(model => model.Wards)</h3>
+</div>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th style="width: 15%;">@Html.DisplayNameFor(model => model.Wards.First().Id)</th>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Wards.First().Name)</th>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Wards.First().Places)</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var ward in Model.Wards.EmptyIfNull())
+    {
+        <tr>
+            <th><a asp-controller="Wards" asp-action="Details" asp-route-id="@ward.Id" class="btn btn-light">@Html.DisplayFor(model => ward.Id)</a></th>
+            <td>@Html.DisplayFor(model => ward.Name)</td>
+            <td>@Html.DisplayFor(model => ward.Places)</td>
+        </tr>
+    }
+    </tbody>
+</table>

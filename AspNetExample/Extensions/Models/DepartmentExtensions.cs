@@ -15,4 +15,16 @@ public static class DepartmentExtensions
             Name = department.Name
         };
     }
+
+    public static DepartmentDetailsModel ToDetailsModel(this Department department)
+    {
+        return new DepartmentDetailsModel
+        {
+            Department = department.ToModel(),
+            Wards = department.Wards
+                .OrderBy(ward => ward.Id)
+                .Select(ward => ward.ToModel())
+                .ToArray()
+        };
+    }
 }
