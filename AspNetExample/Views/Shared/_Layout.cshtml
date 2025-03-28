@@ -43,8 +43,11 @@
             const url = new URL(window.location);
 
             url.searchParams.delete('Page');
-            url.searchParams.delete('SortBy');
-            url.searchParams.set('SortBy', sortBy);
+
+            if (sortBy == '')
+                url.searchParams.delete('SortBy');
+            else
+                url.searchParams.set('SortBy', sortBy);
 
             window.location.href = url;
         }

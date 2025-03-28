@@ -19,6 +19,16 @@ public static class StringExtensions
         return !string.IsNullOrEmpty(str);
     }
 
+    public static bool IsEquals(this string? source, string? searchString)
+    {
+        return string.Equals(source, searchString, StringComparison.Ordinal);
+    }
+
+    public static bool IsEqualsIgnoreCase(this string? source, string? searchString)
+    {
+        return string.Equals(source, searchString, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static TResult[] SplitAndParse<TResult>(
         this string value,
         char separator,

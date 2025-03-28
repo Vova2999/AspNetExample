@@ -37,6 +37,7 @@
         <th style="width: 15%;">@Html.DisplayNameFor(model => model.Wards.First().Id)</th>
         <th style="width: 20%;">@Html.DisplayNameFor(model => model.Wards.First().Name)</th>
         <th style="width: 20%;">@Html.DisplayNameFor(model => model.Wards.First().Places)</th>
+        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Wards.First().DepartmentName)</th>
     </tr>
     </thead>
     <tbody>
@@ -46,6 +47,7 @@
             <th><a asp-controller="Wards" asp-action="Details" asp-route-id="@ward.Id" class="btn btn-light">@Html.DisplayFor(model => ward.Id)</a></th>
             <td>@Html.DisplayFor(model => ward.Name)</td>
             <td>@Html.DisplayFor(model => ward.Places)</td>
+            <td>@Html.DisplayFor(model => ward.DepartmentName) (@Html.DisplayFor(model => ward.DepartmentId))</td>
         </tr>
     }
     </tbody>

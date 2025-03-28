@@ -62,7 +62,7 @@ public class ProfessorsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();
 

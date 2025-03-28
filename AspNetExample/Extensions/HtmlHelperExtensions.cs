@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Text;
+using AspNetExample.Common.Extensions;
 using AspNetExample.Models;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,15 +13,21 @@ public static class HtmlHelperExtensions
         this IHtmlHelper<TModel> htmlHelper,
         string? currentSortBy,
         string sortPropertyName,
-        Expression<Func<TModel, TResult>> expression)
+        Expression<Func<TModel, TResult>> expression,
+        bool isDefault = false)
     {
         var stringBuilder = new StringBuilder();
         var sortDescPropertyName = $"{sortPropertyName}{Constants.DescSuffix}";
 
+        if (currentSortBy.IsNullOrEmpty() && isDefault)
+            currentSortBy = sortPropertyName;
+
         var nextSortPropertyName =
             currentSortBy == sortPropertyName
                 ? sortDescPropertyName
-                : sortPropertyName;
+                : isDefault
+                    ? string.Empty
+                    : sortPropertyName;
 
         stringBuilder
             .Append("<a onclick=\"changeSortBy('")

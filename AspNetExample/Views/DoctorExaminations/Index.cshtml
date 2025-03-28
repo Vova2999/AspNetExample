@@ -56,7 +56,7 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations.First().Id)</th>
+        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations.First().Id, true)</th>
         <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations.First().Date)</th>
         <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations.First().DiseaseName)</th>
         <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations.First().DoctorName)</th>
