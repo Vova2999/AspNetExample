@@ -44,7 +44,8 @@ public static class Program
             });
 
         builder.Services.AddSingleton<ApiExceptionHandlerMiddleware>();
-        AspNetExampleModule.RegisterDependencies(builder.Services);
+
+        AspNetExampleModule.RegisterDependencies(builder.Services, builder.Configuration);
 
         builder.Host.UseNLog();
 

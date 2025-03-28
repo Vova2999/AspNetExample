@@ -17,14 +17,18 @@ public class ApplicationContext : DbContext
 
     private readonly ILogger<ApplicationContext>? _logger;
 
-    public ApplicationContext(ILogger<ApplicationContext>? logger = null)
+    public ApplicationContext(
+        DbContextOptions<ApplicationContext> dbContextOptions,
+        ILogger<ApplicationContext>? logger = null)
+        : base(dbContextOptions)
     {
         _logger = logger;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Hospital;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        base.OnConfiguring(optionsBuilder);
+
         optionsBuilder.LogTo(LogMessage, LogLevel.Information);
     }
 
