@@ -25,25 +25,21 @@
 </table>
 
 <div class="props-margin-top">
-    <h3>@Html.DisplayNameFor(model => model.Department)</h3>
+    <h3>@Html.DisplayNameFor(model => model.Department) <a asp-controller="Departments" asp-action="Details" asp-route-id="@Model.Department.Id" class="btn btn-light">@Html.DisplayFor(model => model.Department.Id)</a></h3>
 </div>
-<table class="table table-hover">
-    <thead>
+<table class="props-table">
     <tr>
-        <th style="width: 20%;">@Html.DisplayNameFor(model => model.Department.Id)</th>
-        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Department.Building)</th>
-        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Department.Financing)</th>
-        <th style="width: 30%;">@Html.DisplayNameFor(model => model.Department.Name)</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <th><a asp-controller="Departments" asp-action="Details" asp-route-id="@Model.Department.Id" class="btn btn-light">@Html.DisplayFor(model => model.Department.Id)</a></th>
+        <th>@Html.DisplayNameFor(model => model.Department.Building):</th>
         <td>@Html.DisplayFor(model => model.Department.Building)</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Department.Financing):</th>
         <td>@Html.DisplayFor(model => model.Department.Financing)</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Department.Name):</th>
         <td>@Html.DisplayFor(model => model.Department.Name)</td>
     </tr>
-    </tbody>
 </table>
 
 <div class="props-margin-top">
