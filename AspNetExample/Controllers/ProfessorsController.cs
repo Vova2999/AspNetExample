@@ -1,14 +1,17 @@
-﻿using AspNetExample.Database.Context;
+﻿using AspNetExample.Database;
+using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
 using AspNetExample.Models.Professors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Controllers;
 
+[Authorize]
 public class ProfessorsController : Controller
 {
     private readonly IApplicationContextFactory _applicationContextFactory;
@@ -77,6 +80,7 @@ public class ProfessorsController : Controller
         return View(professor.ToDetailsModel());
     }
 
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();
@@ -86,6 +90,8 @@ public class ProfessorsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Create([FromForm] ProfessorModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -111,6 +117,7 @@ public class ProfessorsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();
@@ -128,6 +135,8 @@ public class ProfessorsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] ProfessorModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -154,6 +163,8 @@ public class ProfessorsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();

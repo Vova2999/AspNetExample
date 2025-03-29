@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetExample.Database", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetExample.Common", "AspNetExample.Common\AspNetExample.Common.csproj", "{BB081F2B-493E-4EB6-A9CF-DC7685D84FD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetExample.Services", "AspNetExample.Services\AspNetExample.Services.csproj", "{1BCCF63F-1F24-4DC4-88D9-847F07E464D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{BB081F2B-493E-4EB6-A9CF-DC7685D84FD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB081F2B-493E-4EB6-A9CF-DC7685D84FD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB081F2B-493E-4EB6-A9CF-DC7685D84FD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BCCF63F-1F24-4DC4-88D9-847F07E464D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BCCF63F-1F24-4DC4-88D9-847F07E464D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BCCF63F-1F24-4DC4-88D9-847F07E464D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BCCF63F-1F24-4DC4-88D9-847F07E464D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

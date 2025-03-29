@@ -105,7 +105,19 @@
                 </ul>
                 <ul class="navbar-nav flex-grow-1 justify-content-end">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="/swagger">Api</a>
+                        @if (Context.User.Identity?.IsAuthenticated == true)
+                        {
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-sign-out"></i> Выйти [@Context.User.Identity.Name]</a>
+                        }
+                        else
+                        {
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login"><i class="fa fa-sign-in"></i> Войти</a>
+                        }
+                    </li>
+                    <li class="nav-item">
+                        @* ReSharper disable Html.PathError *@
+                        <a class="nav-link text-dark" href="/swagger/index.html">Api</a>
+                        @* ReSharper restore Html.PathError *@
                     </li>
                 </ul>
             </div>

@@ -1,0 +1,53 @@
+﻿@model RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<style>
+    label {
+        min-height: calc(1.5rem);
+        padding: 0.2rem 1rem;
+        font-size: 1.25rem;
+    }
+
+    input, span, button {
+        min-height: calc(2rem);
+        padding: 0.2rem 1rem;
+        font-size: 1.25rem;
+    }
+</style>
+
+@using (Html.BeginForm("Register", "Account", FormMethod.Post))
+{
+    <div style="margin-top: 50px">
+        <div style="margin-top: 20px; justify-items: center;">
+            <label asp-for="Login">@Html.DisplayNameFor(model => model.Login):</label>
+            <input asp-for="Login" class="form-control" style="width: 300px;" />
+            <span asp-validation-for="Login" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px; justify-items: center;">
+            <label asp-for="Password">@Html.DisplayNameFor(model => model.Password):</label>
+            <input asp-for="Password" class="form-control" style="width: 300px;" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px; justify-items: center;">
+            <label asp-for="ConfirmPassword">@Html.DisplayNameFor(model => model.ConfirmPassword):</label>
+            <input asp-for="ConfirmPassword" class="form-control" style="width: 300px;" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <input asp-for="ReturnUrl" type="hidden" value="@Model.ReturnUrl" />
+
+        <div class="text-center" style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary" style="width: 200px;"><i class="fa fa-sign-in"></i> Войти</button>
+        </div>
+    </div>
+}
+
+<div class="text-center" style="margin-top: 50px">
+    Уже есть аккаунт?
+    <br />
+    <a asp-action="Login" class="nav-link">Вход</a>
+</div>

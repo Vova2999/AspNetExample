@@ -1,15 +1,18 @@
 ﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
 using AspNetExample.Models.Wards;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Controllers;
 
+[Authorize]
 public class WardsController : Controller
 {
     private readonly IApplicationContextFactory _applicationContextFactory;
@@ -98,6 +101,7 @@ public class WardsController : Controller
         return View(ward.ToDetailsModel());
     }
 
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Create()
     {
         await using var context = _applicationContextFactory.Create();
@@ -107,6 +111,8 @@ public class WardsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Create([FromForm] WardModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -134,6 +140,7 @@ public class WardsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();
@@ -151,6 +158,8 @@ public class WardsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] WardModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -179,6 +188,8 @@ public class WardsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();

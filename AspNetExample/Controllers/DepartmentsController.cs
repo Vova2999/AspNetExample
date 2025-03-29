@@ -1,14 +1,17 @@
 ﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
 using AspNetExample.Models.Departments;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Controllers;
 
+[Authorize]
 public class DepartmentsController : Controller
 {
     private readonly IApplicationContextFactory _applicationContextFactory;
@@ -89,12 +92,15 @@ public class DepartmentsController : Controller
         return View(department.ToDetailsModel());
     }
 
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public IActionResult Create()
     {
         return View(new DepartmentModel());
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Create([FromForm] DepartmentModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -119,6 +125,7 @@ public class DepartmentsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();
@@ -134,6 +141,8 @@ public class DepartmentsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id:int}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] DepartmentModel model)
     {
         await using var context = _applicationContextFactory.Create();
@@ -159,6 +168,8 @@ public class DepartmentsController : Controller
     }
 
     [HttpPost("[controller]/[action]/{id:int}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         await using var context = _applicationContextFactory.Create();

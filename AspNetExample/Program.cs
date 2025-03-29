@@ -1,8 +1,13 @@
 using System.ComponentModel;
+using AspNetExample.Common.Extensions;
 using AspNetExample.Converters;
+using AspNetExample.Domain.Entities;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
+using AspNetExample.Services.Startup;
+using AspNetExample.Services.Stores;
+using Microsoft.AspNetCore.Identity;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -19,6 +24,20 @@ public static class Program
 
         LogManager.Configuration = new NLogLoggingConfiguration(
             builder.Configuration.GetSection("NLog"));
+
+        builder.Services.AddIdentity<User, Role>()
+            .AddUserStore<ApplicationContextUserStore>()
+            .AddRoleStore<ApplicationContextRoleStore>();
+
+        builder.Services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequiredLength = 5;
+            options.Password.RequiredUniqueChars = 1;
+        });
 
         builder.Services
             .AddControllersWithViews(options =>
@@ -51,6 +70,9 @@ public static class Program
 
         var app = builder.Build();
 
+        InitializeApplicationContextAsync(app)
+            .FireAndForgetSafeAsync();
+
         if (app.Environment.IsDevelopment())
         {
             app.UseOpenApi();
@@ -67,10 +89,20 @@ public static class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}");
 
         app.Run();
+    }
+
+    private static async Task InitializeApplicationContextAsync(IHost app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        await scope.ServiceProvider
+            .GetRequiredService<IApplicationContextStartupService>()
+            .InitializeAsync();
     }
 }
