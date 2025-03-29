@@ -168,6 +168,10 @@ public class ApplicationContext : DbContext
             .WithMany(x => x.Interns)
             .HasForeignKey(x => x.DoctorId);
 
+        modelBuilder.Entity<Intern>()
+            .HasIndex(x => x.DoctorId)
+            .IsUnique();
+
         #endregion
 
         #region Professor
@@ -176,6 +180,10 @@ public class ApplicationContext : DbContext
             .HasOne(x => x.Doctor)
             .WithMany(x => x.Professors)
             .HasForeignKey(x => x.DoctorId);
+
+        modelBuilder.Entity<Professor>()
+            .HasIndex(x => x.DoctorId)
+            .IsUnique();
 
         #endregion
 

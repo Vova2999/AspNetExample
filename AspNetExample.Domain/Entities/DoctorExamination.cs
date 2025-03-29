@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CS8618
 // ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace AspNetExample.Domain.Entities;
 
