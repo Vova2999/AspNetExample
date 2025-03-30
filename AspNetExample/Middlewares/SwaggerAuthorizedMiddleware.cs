@@ -1,17 +1,16 @@
-﻿using AspNetExample.Common.Extensions;
+﻿using AspNetExample.Database;
 using AspNetExample.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample.Middlewares;
 
-public class CheckUserRolesMiddleware : IMiddleware
+public class SwaggerAuthorizedMiddleware : IMiddleware
 {
-    private readonly ILogger<CheckUserRolesMiddleware> _logger;
+    private readonly ILogger<SwaggerAuthorizedMiddleware> _logger;
 
-    public CheckUserRolesMiddleware(
-        ILogger<CheckUserRolesMiddleware> logger)
+    public SwaggerAuthorizedMiddleware(
+        ILogger<SwaggerAuthorizedMiddleware> logger)
     {
         _logger = logger;
     }
@@ -24,16 +23,31 @@ public class CheckUserRolesMiddleware : IMiddleware
 
     private async Task<bool> CheckUserRolesAsync(HttpContext context)
     {
-        var authorizeRoles = context.GetEndpoint()?.Metadata.GetMetadata<AuthorizeAttribute>()?.Roles;
-        var requiredRoles = authorizeRoles?.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        if (requiredRoles.IsNullOrEmpty() || context.User.Identity?.IsAuthenticated != true)
+        if (!context.Request.Path.StartsWithSegments("/swagger"))
             return true;
 
+        if (!context.User.Identity?.IsAuthenticated == true)
+        {
+            _logger.LogWarning("User not authorized");
+
+            await context.ForbidAsync();
+            return false;
+        }
+
         var userManager = context.RequestServices.GetRequiredService<UserManager<User>>();
+
         var userId = userManager.GetUserId(context.User);
         if (userId == null)
         {
             _logger.LogWarning("UserId not found");
+
+            await context.ForbidAsync();
+            return false;
+        }
+
+        if (!context.User.IsInRole(RoleTokens.SwaggerRole))
+        {
+            _logger.LogWarning($"Access denied for {userId}. Required role: {RoleTokens.SwaggerRole}");
 
             await context.ForbidAsync();
             return false;
@@ -48,10 +62,9 @@ public class CheckUserRolesMiddleware : IMiddleware
             return false;
         }
 
-        var userRoles = await userManager.GetRolesAsync(user);
-        if (!requiredRoles.Any(role => userRoles.Contains(role.Trim(), StringComparer.OrdinalIgnoreCase)))
+        if (!await userManager.IsInRoleAsync(user, RoleTokens.SwaggerRole))
         {
-            _logger.LogWarning($"Access denied for {userId}. Required: {authorizeRoles}");
+            _logger.LogWarning($"Access denied for {userId}. Required role: {RoleTokens.SwaggerRole}");
 
             await context.ForbidAsync();
             return false;

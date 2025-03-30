@@ -62,8 +62,9 @@ public static class Program
                 settings.OperationProcessors.Insert(0, new OnlyApiOperationProcessor());
             });
 
-        builder.Services.AddSingleton<CheckUserRolesMiddleware>();
+        builder.Services.AddSingleton<SwaggerAuthorizedMiddleware>();
         builder.Services.AddSingleton<ApiExceptionHandlerMiddleware>();
+        builder.Services.AddSingleton<DatabaseCheckUserRolesMiddleware>();
 
         AspNetExampleModule.RegisterDependencies(builder.Services, builder.Configuration);
 
@@ -74,15 +75,8 @@ public static class Program
         InitializeApplicationContextAsync(app)
             .FireAndForgetSafeAsync();
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseOpenApi();
-            app.UseSwaggerUi();
-        }
-        else
-        {
+        if (!app.Environment.IsDevelopment())
             app.UseExceptionHandler("/Home/Error");
-        }
 
         app.UseMiddleware<ApiExceptionHandlerMiddleware>();
 
@@ -93,7 +87,15 @@ public static class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseMiddleware<CheckUserRolesMiddleware>();
+        app.UseMiddleware<DatabaseCheckUserRolesMiddleware>();
+
+        app.UseMiddleware<SwaggerAuthorizedMiddleware>();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseOpenApi();
+            app.UseSwaggerUi();
+        }
 
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}");
 
