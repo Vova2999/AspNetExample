@@ -1,0 +1,47 @@
+﻿@model UserModel
+@{
+    ViewData["Title"] = "Создание пользователя";
+}
+
+<div class="text-center">
+    <h2>@ViewData["Title"]</h2>
+</div>
+
+@using (Html.BeginForm("Create", "Users", FormMethod.Post))
+{
+    <div>
+        <div style="margin-top: 20px;">
+            <label asp-for="Login">@Html.DisplayNameFor(model => model.Login):</label>
+            <input asp-for="Login" class="form-control" />
+            <span asp-validation-for="Login" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="NewPassword">@Html.DisplayNameFor(model => model.NewPassword):</label>
+            <input asp-for="NewPassword" class="form-control" />
+            <span asp-validation-for="NewPassword" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label class="form-check-label">
+                <input class="form-check-input" asp-for="HasAdminRole" />
+                <span></span>
+                @Html.DisplayNameFor(model => model.HasAdminRole)
+            </label>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label class="form-check-label">
+                <input class="form-check-input" asp-for="HasSwaggerRole" />
+                <span></span>
+                @Html.DisplayNameFor(model => model.HasSwaggerRole)
+            </label>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+            <br />
+            <a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>
+        </div>
+    </div>
+}

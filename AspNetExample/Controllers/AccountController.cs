@@ -64,6 +64,10 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register([FromForm] RegisterModel model)
     {
+        var conflictedUser = await _userManager.FindByNameAsync(model.Login);
+        if (conflictedUser != null)
+            ModelState.AddModelError(nameof(model.Login), "Логин уже зарегистрирован");
+
         if (!ModelState.IsValid)
             return View(model);
 

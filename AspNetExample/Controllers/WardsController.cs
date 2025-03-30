@@ -139,7 +139,7 @@ public class WardsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet("[controller]/[action]/{id}")]
+    [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id)
     {
@@ -157,7 +157,7 @@ public class WardsController : Controller
         return View(ward.ToModel());
     }
 
-    [HttpPost("[controller]/[action]/{id}")]
+    [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] WardModel model)
@@ -187,7 +187,7 @@ public class WardsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost("[controller]/[action]/{id}")]
+    [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Delete([FromRoute] int id)

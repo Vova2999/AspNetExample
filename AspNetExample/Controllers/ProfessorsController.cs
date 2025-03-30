@@ -116,7 +116,7 @@ public class ProfessorsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet("[controller]/[action]/{id}")]
+    [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id)
     {
@@ -134,7 +134,7 @@ public class ProfessorsController : Controller
         return View(professor.ToModel());
     }
 
-    [HttpPost("[controller]/[action]/{id}")]
+    [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] ProfessorModel model)
@@ -162,7 +162,7 @@ public class ProfessorsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost("[controller]/[action]/{id}")]
+    [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<IActionResult> Delete([FromRoute] int id)

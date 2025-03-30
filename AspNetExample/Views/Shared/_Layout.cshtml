@@ -78,47 +78,61 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Departments" asp-action="Index">Департаменты</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Wards" asp-action="Index">Палаты</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Diseases" asp-action="Index">Болезни</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Examinations" asp-action="Index">Обследования</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Doctors" asp-action="Index">Доктора</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Interns" asp-action="Index">Стажеры</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Professors" asp-action="Index">Профессоры</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="DoctorExaminations" asp-action="Index">Осмотры</a>
-                    </li>
+                    @if (Context.User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (Context.User.IsInRole(RoleTokens.AdminRole))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Пользователи</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Departments" asp-action="Index">Департаменты</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Wards" asp-action="Index">Палаты</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Diseases" asp-action="Index">Болезни</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Examinations" asp-action="Index">Обследования</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Doctors" asp-action="Index">Доктора</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Interns" asp-action="Index">Стажеры</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Professors" asp-action="Index">Профессоры</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="DoctorExaminations" asp-action="Index">Осмотры</a>
+                        </li>
+                    }
                 </ul>
                 <ul class="navbar-nav flex-grow-1 justify-content-end">
-                    <li class="nav-item">
-                        @if (Context.User.Identity?.IsAuthenticated == true)
-                        {
+                    @if (Context.User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa fa-sign-out"></i> Выйти [@Context.User.Identity.Name]</a>
-                        }
-                        else
+                        </li>
+                        @if (Context.User.IsInRole(RoleTokens.SwaggerRole))
                         {
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login"><i class="fa fa-sign-in"></i> Войти</a>
+                            <li class="nav-item">
+                                @* ReSharper disable Html.PathError *@
+                                <a class="nav-link text-dark" href="/swagger/index.html">Api</a>
+                                @* ReSharper restore Html.PathError *@
+                            </li>
                         }
-                    </li>
-                    <li class="nav-item">
-                        @* ReSharper disable Html.PathError *@
-                        <a class="nav-link text-dark" href="/swagger/index.html">Api</a>
-                        @* ReSharper restore Html.PathError *@
-                    </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login"><i class="fa fa-sign-in"></i> Войти</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
