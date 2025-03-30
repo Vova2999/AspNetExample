@@ -37,7 +37,7 @@ public class DiseasesApiController : ControllerBase
         var diseasesQuery = context.Diseases
             .AsNoTracking();
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             diseasesQuery = diseasesQuery.Where(disease => names.Contains(disease.Name));
 
         diseasesQuery = diseasesQuery.OrderBy(disease => disease.Id);

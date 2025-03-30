@@ -41,13 +41,13 @@ public class WardsApiController : ControllerBase
             .Include(ward => ward.Department)
             .AsNoTracking();
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             wardsQuery = wardsQuery.Where(ward => names.Contains(ward.Name));
         if (placesFrom != null)
             wardsQuery = wardsQuery.Where(ward => ward.Places >= placesFrom);
         if (placesTo != null)
             wardsQuery = wardsQuery.Where(ward => ward.Places <= placesTo);
-        if (departmentNames?.Any() == true)
+        if (departmentNames.IsSignificant())
             wardsQuery = wardsQuery.Where(ward => departmentNames.Contains(ward.Department.Name));
 
         wardsQuery = wardsQuery.OrderBy(ward => ward.Id);

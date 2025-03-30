@@ -48,13 +48,13 @@ public class DoctorExaminationsController : Controller
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => doctorExamination.Date >= dateFrom);
         if (dateTo != null)
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => doctorExamination.Date <= dateTo);
-        if (diseaseNames?.Any() == true)
+        if (diseaseNames.IsSignificant())
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => diseaseNames.Contains(doctorExamination.Disease.Name));
-        if (doctorNames?.Any() == true)
+        if (doctorNames.IsSignificant())
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => doctorNames.Contains(doctorExamination.Doctor.Name));
-        if (examinationNames?.Any() == true)
+        if (examinationNames.IsSignificant())
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => examinationNames.Contains(doctorExamination.Examination.Name));
-        if (wardNames?.Any() == true)
+        if (wardNames.IsSignificant())
             doctorExaminationsQuery = doctorExaminationsQuery.Where(doctorExamination => wardNames.Contains(doctorExamination.Ward.Name));
 
         doctorExaminationsQuery = model?.SortBy switch

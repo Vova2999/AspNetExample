@@ -37,7 +37,7 @@ public class ExaminationsApiController : ControllerBase
         var examinationsQuery = context.Examinations
             .AsNoTracking();
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             examinationsQuery = examinationsQuery.Where(examination => names.Contains(examination.Name));
 
         examinationsQuery = examinationsQuery.OrderBy(examination => examination.Id);

@@ -37,13 +37,13 @@ public class DoctorsController : Controller
         var salaryTo = model?.SalaryTo;
         var surnames = model?.Surnames?.Split(';');
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             doctorsQuery = doctorsQuery.Where(doctor => names.Contains(doctor.Name));
         if (salaryFrom != null)
             doctorsQuery = doctorsQuery.Where(doctor => doctor.Salary >= salaryFrom);
         if (salaryTo != null)
             doctorsQuery = doctorsQuery.Where(doctor => doctor.Salary <= salaryTo);
-        if (surnames?.Any() == true)
+        if (surnames.IsSignificant())
             doctorsQuery = doctorsQuery.Where(doctor => surnames.Contains(doctor.Surname));
 
         doctorsQuery = model?.SortBy switch

@@ -37,13 +37,13 @@ public class DepartmentsController : Controller
         var financingTo = model?.FinancingTo;
         var names = model?.Names?.Split(';');
 
-        if (buildings?.Any() == true)
+        if (buildings.IsSignificant())
             departmentsQuery = departmentsQuery.Where(department => buildings.Contains(department.Building));
         if (financingFrom.HasValue)
             departmentsQuery = departmentsQuery.Where(department => department.Financing >= financingFrom);
         if (financingTo.HasValue)
             departmentsQuery = departmentsQuery.Where(department => department.Financing <= financingTo);
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             departmentsQuery = departmentsQuery.Where(department => names.Contains(department.Name));
 
         departmentsQuery = model?.SortBy switch

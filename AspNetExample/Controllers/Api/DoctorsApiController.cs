@@ -40,13 +40,13 @@ public class DoctorsApiController : ControllerBase
         var doctorsQuery = context.Doctors
             .AsNoTracking();
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             doctorsQuery = doctorsQuery.Where(doctor => names.Contains(doctor.Name));
         if (salaryFrom != null)
             doctorsQuery = doctorsQuery.Where(doctor => doctor.Salary >= salaryFrom);
         if (salaryTo != null)
             doctorsQuery = doctorsQuery.Where(doctor => doctor.Salary <= salaryTo);
-        if (surnames?.Any() == true)
+        if (surnames.IsSignificant())
             doctorsQuery = doctorsQuery.Where(doctor => surnames.Contains(doctor.Surname));
 
         doctorsQuery = doctorsQuery.OrderBy(doctor => doctor.Id);

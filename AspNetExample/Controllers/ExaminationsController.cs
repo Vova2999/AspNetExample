@@ -34,7 +34,7 @@ public class ExaminationsController : Controller
 
         var names = model?.Names?.Split(';');
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             examinationsQuery = examinationsQuery.Where(examination => names.Contains(examination.Name));
 
         examinationsQuery = model?.SortBy switch

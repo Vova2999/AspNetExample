@@ -34,7 +34,7 @@ public class DiseasesController : Controller
 
         var names = model?.Names?.Split(';');
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             diseasesQuery = diseasesQuery.Where(d => names.Contains(d.Name));
 
         diseasesQuery = model?.SortBy switch

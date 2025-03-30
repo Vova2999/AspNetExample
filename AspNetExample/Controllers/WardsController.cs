@@ -39,7 +39,7 @@ public class WardsController : Controller
         var placesTo = model?.PlacesTo;
         var departmentNames = model?.DepartmentNames?.Split(";");
 
-        if (names?.Any() == true)
+        if (names.IsSignificant())
             wardsQuery = wardsQuery.Where(ward => names.Contains(ward.Name));
         if (placesFrom != null)
             wardsQuery = wardsQuery.Where(ward => ward.Places >= placesFrom);

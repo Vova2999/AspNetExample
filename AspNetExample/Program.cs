@@ -62,6 +62,7 @@ public static class Program
                 settings.OperationProcessors.Insert(0, new OnlyApiOperationProcessor());
             });
 
+        builder.Services.AddSingleton<CheckUserRolesMiddleware>();
         builder.Services.AddSingleton<ApiExceptionHandlerMiddleware>();
 
         AspNetExampleModule.RegisterDependencies(builder.Services, builder.Configuration);
@@ -91,6 +92,8 @@ public static class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseMiddleware<CheckUserRolesMiddleware>();
 
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}");
 

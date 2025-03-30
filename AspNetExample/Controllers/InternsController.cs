@@ -1,4 +1,5 @@
-﻿using AspNetExample.Database;
+﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain.Entities;
@@ -35,7 +36,7 @@ public class InternsController : Controller
 
         var doctorNames = model?.DoctorNames?.Split(';');
 
-        if (doctorNames?.Any() == true)
+        if (doctorNames.IsSignificant())
             internsQuery = internsQuery.Where(intern => doctorNames.Contains(intern.Doctor.Name));
 
         internsQuery = model?.SortBy switch

@@ -38,7 +38,7 @@ public class InternsApiController : ControllerBase
             .Include(intern => intern.Doctor)
             .AsNoTracking();
 
-        if (doctorNames?.Any() == true)
+        if (doctorNames.IsSignificant())
             internsQuery = internsQuery.Where(intern => doctorNames.Contains(intern.Doctor.Name));
 
         internsQuery = internsQuery.OrderBy(intern => intern.Id);
