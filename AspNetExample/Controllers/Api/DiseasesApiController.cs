@@ -146,7 +146,11 @@ public class DiseasesApiController : ControllerBase
         if (diseaseDto == null)
             return;
 
-        if (diseaseDto.Name.IsSignificant())
+        if (diseaseDto.Name.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(diseaseDto.Name), "Название обязательно для заполнения.");
+        }
+        else
         {
             var hasConflictedName = await context.Diseases.AnyAsync(disease =>
                 (!currentId.HasValue || disease.Id != currentId.Value) &&

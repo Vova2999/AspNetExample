@@ -162,6 +162,12 @@ public class DoctorsApiController : ControllerBase
         if (doctorDto.Salary <= 0)
             ModelState.AddModelError(nameof(doctorDto.Salary), "Зарплата должна быть больше 0.");
 
+        if (doctorDto.Name.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(doctorDto.Name), "Имя обязательно для заполнения.");
+
+        if (doctorDto.Surname.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(doctorDto.Surname), "Фамилия обязательна для заполнения.");
+
         if (doctorDto.Name.IsSignificant() && doctorDto.Surname.IsSignificant())
         {
             var hasConflictedName = await context.Doctors.AnyAsync(doctor =>

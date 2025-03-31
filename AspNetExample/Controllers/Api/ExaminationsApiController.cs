@@ -146,7 +146,11 @@ public class ExaminationsApiController : ControllerBase
         if (examinationDto == null)
             return;
 
-        if (examinationDto.Name.IsSignificant())
+        if (examinationDto.Name.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(examinationDto.Name), "Название обязательно для заполнения.");
+        }
+        else
         {
             var hasConflictedName = await context.Examinations.AnyAsync(examination =>
                 (!currentId.HasValue || examination.Id != currentId.Value) &&

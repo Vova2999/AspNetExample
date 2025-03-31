@@ -167,7 +167,11 @@ public class WardsApiController : ControllerBase
         if (wardDto.Places <= 0)
             ModelState.AddModelError(nameof(wardDto.Places), "Количество мест должно быть больше 0.");
 
-        if (wardDto.Name.IsSignificant())
+        if (wardDto.Name.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(wardDto.Name), "Название обязательно для заполнения.");
+        }
+        else
         {
             var hasConflictedName = await context.Wards.AnyAsync(ward =>
                 (!currentId.HasValue || ward.Id != currentId.Value) &&
@@ -179,7 +183,11 @@ public class WardsApiController : ControllerBase
 
         var currentDepartment = (Department?) null;
 
-        if (wardDto.DepartmentName.IsSignificant())
+        if (wardDto.DepartmentName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(wardDto.DepartmentName), "Название департамента обязательно для заполнения.");
+        }
+        else
         {
             currentDepartment = await context.Departments.FirstOrDefaultAsync(department =>
                 EF.Functions.Like(wardDto.DepartmentName, department.Name));

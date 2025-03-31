@@ -28,6 +28,12 @@ public class AccountApiController : ControllerBase
     public async Task<TokenDto> Login(
         [FromBody] LoginDto login)
     {
+        if (login.Login.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(login.Login), "Логин обязателен для заполнения");
+
+        if (login.Password.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(login.Password), "Пароль обязателен для заполнения");
+
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -61,6 +67,12 @@ public class AccountApiController : ControllerBase
     public async Task Register(
         [FromBody] RegisterDto register)
     {
+        if (register.Login.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(register.Login), "Логин обязателен для заполнения");
+
+        if (register.Password.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(register.Password), "Пароль обязателен для заполнения");
+
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 

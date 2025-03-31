@@ -165,7 +165,11 @@ public class DepartmentsApiController : ControllerBase
         if (departmentDto.Financing < 0)
             ModelState.AddModelError(nameof(departmentDto.Financing), "Финансирование должно быть положительным.");
 
-        if (departmentDto.Name.IsSignificant())
+        if (departmentDto.Name.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(departmentDto.Name), "Название обязательно для заполнения.");
+        }
+        else
         {
             var hasConflictedName = await context.Departments.AnyAsync(department =>
                 (!currentId.HasValue || department.Id != currentId.Value) &&

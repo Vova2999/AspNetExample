@@ -184,7 +184,11 @@ public class DoctorExaminationsApiController : ControllerBase
         var currentExamination = (Examination?) null;
         var currentWard = (Ward?) null;
 
-        if (doctorExaminationDto.DiseaseName.IsSignificant())
+        if (doctorExaminationDto.DiseaseName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(doctorExaminationDto.DiseaseName), "Название болезни обязательно для заполнения.");
+        }
+        else
         {
             currentDisease = await context.Diseases.FirstOrDefaultAsync(disease =>
                 EF.Functions.Like(doctorExaminationDto.DiseaseName, disease.Name));
@@ -193,7 +197,11 @@ public class DoctorExaminationsApiController : ControllerBase
                 ModelState.AddModelError(nameof(doctorExaminationDto.DiseaseName), "Болезнь не найдена.");
         }
 
-        if (doctorExaminationDto.DoctorName.IsSignificant())
+        if (doctorExaminationDto.DoctorName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(doctorExaminationDto.DoctorName), "Имя доктора обязательно для заполнения.");
+        }
+        else
         {
             currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
                 EF.Functions.Like(doctorExaminationDto.DoctorName, doctor.Name));
@@ -202,7 +210,11 @@ public class DoctorExaminationsApiController : ControllerBase
                 ModelState.AddModelError(nameof(doctorExaminationDto.DoctorName), "Доктор не найден.");
         }
 
-        if (doctorExaminationDto.ExaminationName.IsSignificant())
+        if (doctorExaminationDto.ExaminationName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(doctorExaminationDto.ExaminationName), "Название обследования обязательно для заполнения.");
+        }
+        else
         {
             currentExamination = await context.Examinations.FirstOrDefaultAsync(examination =>
                 EF.Functions.Like(doctorExaminationDto.ExaminationName, examination.Name));
@@ -211,7 +223,11 @@ public class DoctorExaminationsApiController : ControllerBase
                 ModelState.AddModelError(nameof(doctorExaminationDto.ExaminationName), "Обследование не найдено.");
         }
 
-        if (doctorExaminationDto.WardName.IsSignificant())
+        if (doctorExaminationDto.WardName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(doctorExaminationDto.WardName), "Название палаты обязательно для заполнения.");
+        }
+        else
         {
             currentWard = await context.Wards.FirstOrDefaultAsync(ward =>
                 EF.Functions.Like(doctorExaminationDto.WardName, ward.Name));

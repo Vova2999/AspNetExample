@@ -150,7 +150,11 @@ public class InternsApiController : ControllerBase
 
         var currentDoctor = (Doctor?) null;
 
-        if (internDto.DoctorName.IsSignificant())
+        if (internDto.DoctorName.IsNullOrEmpty())
+        {
+            ModelState.AddModelError(nameof(internDto.DoctorName), "Имя доктора обязательно для заполнения.");
+        }
+        else
         {
             currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
                 EF.Functions.Like(internDto.DoctorName, doctor.Name));
