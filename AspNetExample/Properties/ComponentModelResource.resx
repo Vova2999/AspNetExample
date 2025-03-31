@@ -117,6 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <!-- ReSharper disable DuplicateResource -->
   <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
     <value>Аргумент '{0}' не может быть нулевым, пустым или содержать только пробелы.</value>
   </data>
@@ -309,4 +310,5 @@
   <data name="NonPropertyValueMustBeANumberAccessor" xml:space="preserve">
     <value>Поле должно быть числом.</value>
   </data>
+  <!-- ReSharper restore DuplicateResource -->
 </root>

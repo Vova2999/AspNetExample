@@ -108,7 +108,7 @@ public static class Program
                         BearerFormat = "JWT",
                         Scheme = JwtBearerDefaults.AuthenticationScheme,
                         ExtensionData = new Dictionary<string, object?> { ["x-bearer-prefix"] = true }
-            });
+                    });
 
                 settings.OperationProcessors.Add(new OperationSecurityScopeProcessor(JwtBearerDefaults.AuthenticationScheme));
 

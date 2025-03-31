@@ -1,4 +1,8 @@
-﻿namespace AspNetExample.Models;
+﻿#pragma warning disable CS8618
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+namespace AspNetExample.Models;
 
 public class SortingPaginationModelBase
 {

@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
-using AspNetExample.Models.Doctors;
+﻿#pragma warning disable CS8618
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-#pragma warning disable CS8618
+using System.ComponentModel;
+using AspNetExample.Models.Doctors;
 
 namespace AspNetExample.Models.Interns;
 

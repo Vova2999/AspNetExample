@@ -1,8 +1,8 @@
-﻿using AspNetExample.Database.Context;
+﻿// ReSharper disable UnusedType.Global
+
+using AspNetExample.Database.Context;
 using AspNetExample.Database.Helpers;
 using Microsoft.EntityFrameworkCore.Design;
-
-// ReSharper disable UnusedType.Global
 
 namespace AspNetExample.Context;
 
