@@ -2,6 +2,8 @@
 using AspNetExample.Database.Helpers;
 using Microsoft.EntityFrameworkCore.Design;
 
+// ReSharper disable UnusedType.Global
+
 namespace AspNetExample.Context;
 
 public class ApplicationContextDesignTimeFactory : IDesignTimeDbContextFactory<ApplicationContext>

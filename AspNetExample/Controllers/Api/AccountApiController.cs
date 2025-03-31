@@ -5,12 +5,14 @@ using AspNetExample.Domain.Dtos;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Exceptions.Api;
 using AspNetExample.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AspNetExample.Controllers.Api;
 
+[Authorize]
 [ApiController]
 [Route("api/account")]
 [Produces(MediaTypeNames.Application.Json)]
@@ -24,6 +26,7 @@ public class AccountApiController : ControllerBase
         _userManager = userManager;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<TokenDto> Login(
         [FromBody] LoginDto login)
@@ -63,6 +66,7 @@ public class AccountApiController : ControllerBase
         return new TokenDto { Token = token };
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task Register(
         [FromBody] RegisterDto register)
@@ -90,5 +94,28 @@ public class AccountApiController : ControllerBase
         var result = await _userManager.CreateAsync(user, register.Password);
         if (!result.Succeeded)
             throw new InternalServerErrorException(result.Errors.JoinErrors());
+    }
+
+    [HttpPost("changePassword")]
+    public async Task ChangePassword(
+        [FromBody] ChangePasswordDto changePassword)
+    {
+        if (changePassword.OldPassword.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(changePassword.OldPassword), "Старый пароль обязателен для заполнения");
+
+        if (changePassword.NewPassword.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(changePassword.NewPassword), "Новый пароль обязателен для заполнения");
+        else if (changePassword.NewPassword.Length < 6)
+            ModelState.AddModelError(nameof(changePassword.NewPassword), "Минимальная длина нового пароля 6 символов");
+
+        if (!ModelState.IsValid)
+            throw new BadRequestException(ModelState.JoinErrors());
+
+        var user = await _userManager.GetUserAsync(HttpContext.User)
+            ?? throw new InvalidOperationException("User is null");
+
+        var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
+        if (!changePasswordResult.Succeeded)
+            throw new BadRequestException("Старый пароль некорректен");
     }
 }
