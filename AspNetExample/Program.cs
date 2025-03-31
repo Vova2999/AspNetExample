@@ -5,6 +5,7 @@ using AspNetExample.Domain.Entities;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
+using AspNetExample.Services.Managers;
 using AspNetExample.Services.Startup;
 using AspNetExample.Services.Stores;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,9 +30,7 @@ public static class Program
         LogManager.Configuration = new NLogLoggingConfiguration(
             builder.Configuration.GetSection("NLog"));
 
-        builder.Services.AddIdentity<User, Role>()
-            .AddUserStore<ApplicationContextUserStore>()
-            .AddRoleStore<ApplicationContextRoleStore>();
+        AspNetExampleModule.RegisterDependencies(builder.Services, builder.Configuration);
 
         builder.Services
             .AddAuthentication(options =>
@@ -122,8 +121,6 @@ public static class Program
         builder.Services.AddSingleton<SwaggerAuthorizedMiddleware>();
         builder.Services.AddSingleton<ApiExceptionHandlerMiddleware>();
         builder.Services.AddSingleton<DatabaseCheckUserRolesMiddleware>();
-
-        AspNetExampleModule.RegisterDependencies(builder.Services, builder.Configuration);
 
         builder.Host.UseNLog();
 

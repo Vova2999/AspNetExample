@@ -1,7 +1,6 @@
 ﻿using AspNetExample.Domain;
-using AspNetExample.Domain.Entities;
+using AspNetExample.Services.Managers;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample.Middlewares;
 
@@ -34,9 +33,10 @@ public class SwaggerAuthorizedMiddleware : IMiddleware
             return false;
         }
 
-        var userManager = context.RequestServices.GetRequiredService<UserManager<User>>();
+        var applicationContextUserManager = context.RequestServices
+            .GetRequiredService<ApplicationContextUserManager>();
 
-        var userId = userManager.GetUserId(context.User);
+        var userId = applicationContextUserManager.GetUserId(context.User);
         if (userId == null)
         {
             _logger.LogWarning("UserId not found");
@@ -53,7 +53,7 @@ public class SwaggerAuthorizedMiddleware : IMiddleware
             return false;
         }
 
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await applicationContextUserManager.FindByIdAsync(userId);
         if (user == null)
         {
             _logger.LogWarning($"User {userId} not found");
@@ -62,7 +62,7 @@ public class SwaggerAuthorizedMiddleware : IMiddleware
             return false;
         }
 
-        if (!await userManager.IsInRoleAsync(user, RoleTokens.SwaggerRole))
+        if (!await applicationContextUserManager.IsInRoleAsync(user, RoleTokens.SwaggerRole))
         {
             _logger.LogWarning($"Access denied for {userId}. Required role: {RoleTokens.SwaggerRole}");
 

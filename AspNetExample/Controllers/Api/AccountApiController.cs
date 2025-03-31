@@ -5,8 +5,8 @@ using AspNetExample.Domain.Dtos;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Exceptions.Api;
 using AspNetExample.Extensions;
+using AspNetExample.Services.Managers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,12 +18,12 @@ namespace AspNetExample.Controllers.Api;
 [Produces(MediaTypeNames.Application.Json)]
 public class AccountApiController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
+    private readonly ApplicationContextUserManager _applicationContextUserManager;
 
     public AccountApiController(
-        UserManager<User> userManager)
+        ApplicationContextUserManager applicationContextUserManager)
     {
-        _userManager = userManager;
+        _applicationContextUserManager = applicationContextUserManager;
     }
 
     [AllowAnonymous]
@@ -40,11 +40,11 @@ public class AccountApiController : ControllerBase
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
-        var user = await _userManager.FindByNameAsync(login.Login);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, login.Password))
+        var user = await _applicationContextUserManager.FindByNameAsync(login.Login);
+        if (user == null || !await _applicationContextUserManager.CheckPasswordAsync(user, login.Password))
             throw new UnauthorizedException("Некорректные логин и(или) пароль");
 
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await _applicationContextUserManager.GetRolesAsync(user);
         var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -83,7 +83,7 @@ public class AccountApiController : ControllerBase
         if (register.Password.Length < 6)
             ModelState.AddModelError(nameof(register.Password), "Минимальная длина пароля 6 символов");
 
-        var conflictedUser = await _userManager.FindByNameAsync(register.Login);
+        var conflictedUser = await _applicationContextUserManager.FindByNameAsync(register.Login);
         if (conflictedUser != null)
             ModelState.AddModelError(nameof(register.Login), "Логин уже зарегистрирован");
 
@@ -91,7 +91,7 @@ public class AccountApiController : ControllerBase
             throw new BadRequestException(ModelState.JoinErrors());
 
         var user = new User { Id = Guid.NewGuid(), Name = register.Login };
-        var result = await _userManager.CreateAsync(user, register.Password);
+        var result = await _applicationContextUserManager.CreateAsync(user, register.Password);
         if (!result.Succeeded)
             throw new InternalServerErrorException(result.Errors.JoinErrors());
     }
@@ -111,10 +111,10 @@ public class AccountApiController : ControllerBase
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
-        var user = await _userManager.GetUserAsync(HttpContext.User)
+        var user = await _applicationContextUserManager.GetUserAsync(HttpContext.User)
             ?? throw new InvalidOperationException("User is null");
 
-        var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
+        var changePasswordResult = await _applicationContextUserManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
         if (!changePasswordResult.Succeeded)
             throw new BadRequestException("Старый пароль некорректен");
     }

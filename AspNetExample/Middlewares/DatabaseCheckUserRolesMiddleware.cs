@@ -1,8 +1,7 @@
 ﻿using AspNetExample.Common.Extensions;
-using AspNetExample.Domain.Entities;
+using AspNetExample.Services.Managers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample.Middlewares;
 
@@ -29,9 +28,10 @@ public class DatabaseCheckUserRolesMiddleware : IMiddleware
         if (requiredRoles.IsNullOrEmpty() || context.User.Identity?.IsAuthenticated != true)
             return true;
 
-        var userManager = context.RequestServices.GetRequiredService<UserManager<User>>();
+        var applicationContextUserManager = context.RequestServices
+            .GetRequiredService<ApplicationContextUserManager>();
 
-        var userId = userManager.GetUserId(context.User);
+        var userId = applicationContextUserManager.GetUserId(context.User);
         if (userId == null)
         {
             _logger.LogWarning("UserId not found");
@@ -40,7 +40,7 @@ public class DatabaseCheckUserRolesMiddleware : IMiddleware
             return false;
         }
 
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await applicationContextUserManager.FindByIdAsync(userId);
         if (user == null)
         {
             _logger.LogWarning($"User {userId} not found");
@@ -49,7 +49,7 @@ public class DatabaseCheckUserRolesMiddleware : IMiddleware
             return false;
         }
 
-        var userRoles = await userManager.GetRolesAsync(user);
+        var userRoles = await applicationContextUserManager.GetRolesAsync(user);
         if (!requiredRoles.Any(role => userRoles.Contains(role.Trim(), StringComparer.OrdinalIgnoreCase)))
         {
             _logger.LogWarning($"Access denied for {userId}. Required roles: {authorizeRoles}");

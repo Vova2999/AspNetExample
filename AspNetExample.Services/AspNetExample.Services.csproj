@@ -7,15 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetExample.Common\AspNetExample.Common.csproj" />
-    <ProjectReference Include="..\AspNetExample.Database\AspNetExample.Database.csproj" />
-    <ProjectReference Include="..\AspNetExample.Domain\AspNetExample.Domain.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Identity.Core">
-      <HintPath>..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.11\Microsoft.Extensions.Identity.Core.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\AspNetExample.Common\AspNetExample.Common.csproj" />
+    <ProjectReference Include="..\AspNetExample.Database\AspNetExample.Database.csproj" />
+    <ProjectReference Include="..\AspNetExample.Domain\AspNetExample.Domain.csproj" />
   </ItemGroup>
 
 </Project>

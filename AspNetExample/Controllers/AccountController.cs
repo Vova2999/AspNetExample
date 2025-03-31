@@ -1,8 +1,8 @@
 ﻿using AspNetExample.Common.Extensions;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Models.Account;
+using AspNetExample.Services.Managers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetExample.Controllers;
@@ -10,17 +10,17 @@ namespace AspNetExample.Controllers;
 [Authorize]
 public class AccountController : Controller
 {
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
+    private readonly ApplicationContextUserManager _applicationContextUserManager;
+    private readonly ApplicationContextSignInManager _applicationContextSignInManager;
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
-        UserManager<User> userManager,
-        SignInManager<User> signInManager,
+        ApplicationContextUserManager applicationContextUserManager,
+        ApplicationContextSignInManager applicationContextSignInManager,
         ILogger<AccountController> logger)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _applicationContextUserManager = applicationContextUserManager;
+        _applicationContextSignInManager = applicationContextSignInManager;
         _logger = logger;
     }
 
@@ -38,7 +38,7 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var result = await _signInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
+        var result = await _applicationContextSignInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
         if (!result.Succeeded)
         {
             ModelState.AddModelError(nameof(model.Login), "Некорректные логин и(или) пароль");
@@ -63,7 +63,7 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register([FromForm] RegisterModel model)
     {
-        var conflictedUser = await _userManager.FindByNameAsync(model.Login);
+        var conflictedUser = await _applicationContextUserManager.FindByNameAsync(model.Login);
         if (conflictedUser != null)
             ModelState.AddModelError(nameof(model.Login), "Логин уже зарегистрирован");
 
@@ -71,14 +71,14 @@ public class AccountController : Controller
             return View(model);
 
         var user = new User { Id = Guid.NewGuid(), Name = model.Login };
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var result = await _applicationContextUserManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
             result.Errors.ForEach(error => ModelState.AddModelError(nameof(model.Login), error.Description));
             return View(model);
         }
 
-        await _signInManager.SignInAsync(user, false);
+        await _applicationContextSignInManager.SignInAsync(user, false);
 
         if (model.ReturnUrl.IsSignificant())
             return Redirect(model.ReturnUrl);
@@ -88,7 +88,7 @@ public class AccountController : Controller
 
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await _applicationContextSignInManager.SignOutAsync();
 
         return RedirectToAction("Index", "Home");
     }

@@ -1,7 +1,9 @@
 ﻿using AspNetExample.Database.Context.Factory;
 using AspNetExample.Database.Helpers;
 using AspNetExample.Domain.Entities;
+using AspNetExample.Services.Managers;
 using AspNetExample.Services.Startup;
+using AspNetExample.Services.Stores;
 using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample;
@@ -17,10 +19,22 @@ public static class AspNetExampleModule
         service.AddSingleton<IApplicationContextFactory, ApplicationContextFactory>();
         service.AddSingleton(_ => ApplicationContextHelper.BuildOptions(connectionString));
 
+        service.AddScoped<ApplicationContextUserManager>();
+        service.AddScoped<ApplicationContextRoleManager>();
+        service.AddScoped<ApplicationContextSignInManager>();
+
+        service.AddScoped<UserManager<User>, ApplicationContextUserManager>();
+        service.AddScoped<RoleManager<Role>, ApplicationContextRoleManager>();
+        service.AddScoped<SignInManager<User>, ApplicationContextSignInManager>();
+
+        service.AddIdentity<User, Role>()
+            .AddUserStore<ApplicationContextUserStore>()
+            .AddRoleStore<ApplicationContextRoleStore>();
+
         service.AddScoped<IApplicationContextStartupService>(serviceProvider =>
             new ApplicationContextStartupService(
-                serviceProvider.GetRequiredService<UserManager<User>>(),
-                serviceProvider.GetRequiredService<RoleManager<Role>>(),
+                serviceProvider.GetRequiredService<ApplicationContextUserManager>(),
+                serviceProvider.GetRequiredService<ApplicationContextRoleManager>(),
                 serviceProvider.GetRequiredService<ILogger<ApplicationContextStartupService>>(),
                 initializeUserLogin,
                 initializeUserPassword));

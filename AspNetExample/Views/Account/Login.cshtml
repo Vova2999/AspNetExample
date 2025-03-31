@@ -18,7 +18,7 @@
 
 @using (Html.BeginForm("Login", "Account", FormMethod.Post))
 {
-    <div style="margin-top: 50px">
+    <div style="margin-top: 30px">
         <div style="margin-top: 20px; justify-items: center;">
             <label asp-for="Login">@Html.DisplayNameFor(model => model.Login):</label>
             <input asp-for="Login" class="form-control" style="width: 300px;" />
@@ -39,7 +39,7 @@
     </div>
 }
 
-<div class="text-center" style="margin-top: 50px">
+<div class="text-center" style="margin-top: 40px">
     Нет аккаунта?
     <br />
     <a asp-action="Register" class="nav-link">Регистрация</a>
