@@ -7,10 +7,14 @@ using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
 using AspNetExample.Services.Startup;
 using AspNetExample.Services.Stores;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 namespace AspNetExample;
 
@@ -28,6 +32,37 @@ public static class Program
         builder.Services.AddIdentity<User, Role>()
             .AddUserStore<ApplicationContextUserStore>()
             .AddRoleStore<ApplicationContextRoleStore>();
+
+        builder.Services
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = Constants.MultiAuthScheme;
+                options.DefaultChallengeScheme = Constants.MultiAuthScheme;
+                options.DefaultAuthenticateScheme = Constants.MultiAuthScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = Constants.JwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = Constants.JwtAudience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = Constants.GetJwtSymmetricSecurityKey(),
+                    ValidateIssuerSigningKey = true
+                };
+            })
+            .AddPolicyScheme(
+                Constants.MultiAuthScheme,
+                Constants.MultiAuthScheme,
+                options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                        context.Request.Path.StartsWithSegments("/api")
+                            ? JwtBearerDefaults.AuthenticationScheme
+                            : IdentityConstants.ApplicationScheme;
+                });
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
@@ -60,6 +95,28 @@ public static class Program
                 settings.Title = "AspNetExample";
                 settings.Description = "API documentation";
                 settings.OperationProcessors.Insert(0, new OnlyApiOperationProcessor());
+
+                settings.AddSecurity(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    [],
+                    new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = OpenApiSecuritySchemeType.Http,
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        Description = "Введите JWT токен (префикс 'Bearer' добавится автоматически)",
+                        BearerFormat = "JWT",
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        ExtensionData = new Dictionary<string, object?> { ["x-bearer-prefix"] = true }
+            });
+
+                settings.OperationProcessors.Add(new OperationSecurityScopeProcessor(JwtBearerDefaults.AuthenticationScheme));
+
+                settings.PostProcess = document =>
+                {
+                    if (document.Components.SecuritySchemes.TryGetValue(JwtBearerDefaults.AuthenticationScheme, out var securityScheme))
+                        securityScheme.Scheme = JwtBearerDefaults.AuthenticationScheme;
+                };
             });
 
         builder.Services.AddSingleton<SwaggerAuthorizedMiddleware>();

@@ -1,4 +1,4 @@
-﻿using AspNetExample.Database;
+﻿using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Models.Users;
 using Microsoft.AspNetCore.Identity;

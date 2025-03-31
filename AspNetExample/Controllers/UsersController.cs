@@ -1,12 +1,12 @@
 ﻿using AspNetExample.Common.Extensions;
-using AspNetExample.Database;
+using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
+using AspNetExample.Models.Users;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AspNetExample.Models.Users;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample.Controllers;
 

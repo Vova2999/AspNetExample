@@ -39,7 +39,6 @@ public class AccountController : Controller
             return View(model);
 
         var result = await _signInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
-
         if (!result.Succeeded)
         {
             ModelState.AddModelError(nameof(model.Login), "Некорректные логин и(или) пароль");
@@ -75,9 +74,7 @@ public class AccountController : Controller
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(nameof(model.Login), error.Description);
-
+            result.Errors.ForEach(error => ModelState.AddModelError(nameof(model.Login), error.Description));
             return View(model);
         }
 

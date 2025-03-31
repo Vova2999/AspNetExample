@@ -1,5 +1,5 @@
 ﻿using AspNetExample.Common.Extensions;
-using AspNetExample.Database;
+using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿namespace AspNetExample.Database;
+﻿namespace AspNetExample.Domain;
 
 public class RoleTokens
 {

@@ -1,7 +1,7 @@
 ﻿using AspNetExample.Common.Extensions;
-using AspNetExample.Database;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
+using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Extensions.Models;
 using AspNetExample.Models.Professors;

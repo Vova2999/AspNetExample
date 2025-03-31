@@ -1,4 +1,4 @@
-﻿using AspNetExample.Database;
+﻿using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +26,7 @@ public class SwaggerAuthorizedMiddleware : IMiddleware
         if (!context.Request.Path.StartsWithSegments("/swagger"))
             return true;
 
-        if (!context.User.Identity?.IsAuthenticated == true)
+        if (context.User.Identity?.IsAuthenticated != true)
         {
             _logger.LogWarning("User not authorized");
 

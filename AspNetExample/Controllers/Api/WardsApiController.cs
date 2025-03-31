@@ -2,16 +2,19 @@
 using AspNetExample.Common.Extensions;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
+using AspNetExample.Domain;
 using AspNetExample.Domain.Dtos;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Domain.Extensions;
 using AspNetExample.Exceptions.Api;
 using AspNetExample.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Controllers.Api;
 
+[Authorize]
 [ApiController]
 [Route("api/wards")]
 [Produces(MediaTypeNames.Application.Json)]
@@ -76,6 +79,7 @@ public class WardsApiController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<WardDto> Create(
         [FromBody] WardDto wardDto)
     {
@@ -101,6 +105,7 @@ public class WardsApiController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<WardDto> Update(
         [FromRoute] int id,
         [FromBody] WardDto wardDto)
@@ -129,6 +134,7 @@ public class WardsApiController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
         [FromRoute] int id)
     {

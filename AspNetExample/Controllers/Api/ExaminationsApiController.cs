@@ -2,16 +2,19 @@
 using AspNetExample.Common.Extensions;
 using AspNetExample.Database.Context;
 using AspNetExample.Database.Context.Factory;
+using AspNetExample.Domain;
 using AspNetExample.Domain.Dtos;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Domain.Extensions;
 using AspNetExample.Exceptions.Api;
 using AspNetExample.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Controllers.Api;
 
+[Authorize]
 [ApiController]
 [Route("api/examinations")]
 [Produces(MediaTypeNames.Application.Json)]
@@ -65,6 +68,7 @@ public class ExaminationsApiController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ExaminationDto> Create(
         [FromBody] ExaminationDto examinationDto)
     {
@@ -88,6 +92,7 @@ public class ExaminationsApiController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ExaminationDto> Update(
         [FromRoute] int id,
         [FromBody] ExaminationDto examinationDto)
@@ -114,6 +119,7 @@ public class ExaminationsApiController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
         [FromRoute] int id)
     {
