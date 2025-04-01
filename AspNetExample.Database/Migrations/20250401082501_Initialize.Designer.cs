@@ -3,17 +3,17 @@ using System;
 using AspNetExample.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace AspNetExample.Database.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20250329225047_AddUsersAndRoles")]
-    partial class AddUsersAndRoles
+    [Migration("20250401082501_Initialize")]
+    partial class Initialize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,30 +21,30 @@ namespace AspNetExample.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Building")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Financing")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("money")
+                        .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -53,11 +53,11 @@ namespace AspNetExample.Database.Migrations
 
                     b.ToTable("Departments", t =>
                         {
-                            t.HasCheckConstraint("CK_Departments_Building", "Building BETWEEN 1 AND 5");
+                            t.HasCheckConstraint("CK_Departments_Building", "\"Building\" BETWEEN 1 AND 5");
 
-                            t.HasCheckConstraint("CK_Departments_Financing", "Financing >= 0");
+                            t.HasCheckConstraint("CK_Departments_Financing", "\"Financing\" >= 0");
 
-                            t.HasCheckConstraint("CK_Departments_Name", "LEN(Name) > 0");
+                            t.HasCheckConstraint("CK_Departments_Name", "LENGTH(\"Name\") > 0");
                         });
                 });
 
@@ -65,14 +65,14 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -81,7 +81,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.ToTable("Diseases", t =>
                         {
-                            t.HasCheckConstraint("CK_Diseases_Name", "LEN(Name) > 0");
+                            t.HasCheckConstraint("CK_Diseases_Name", "LENGTH(\"Name\") > 0");
                         });
                 });
 
@@ -89,30 +89,30 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Salary")
-                        .HasColumnType("money");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Surname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Doctors", t =>
                         {
-                            t.HasCheckConstraint("CK_Doctors_Name", "LEN(Name) > 0");
+                            t.HasCheckConstraint("CK_Doctors_Name", "LENGTH(\"Name\") > 0");
 
-                            t.HasCheckConstraint("CK_Doctors_Salary", "Salary > 0");
+                            t.HasCheckConstraint("CK_Doctors_Salary", "\"Salary\" > 0");
 
-                            t.HasCheckConstraint("CK_Doctors_Surname", "LEN(Surname) > 0");
+                            t.HasCheckConstraint("CK_Doctors_Surname", "LENGTH(\"Surname\") > 0");
                         });
                 });
 
@@ -120,26 +120,26 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateOnly>("Date")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("date")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("DiseaseId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("DoctorId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ExaminationId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("WardId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -153,7 +153,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.ToTable("DoctorsExaminations", t =>
                         {
-                            t.HasCheckConstraint("CK_DoctorsExaminations_Date", "Date <= GETDATE()");
+                            t.HasCheckConstraint("CK_DoctorsExaminations_Date", "\"Date\" <= CURRENT_TIMESTAMP");
                         });
                 });
 
@@ -161,14 +161,14 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -177,7 +177,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.ToTable("Examinations", t =>
                         {
-                            t.HasCheckConstraint("CK_Examinations_Name", "LEN(Name) > 0");
+                            t.HasCheckConstraint("CK_Examinations_Name", "LENGTH(\"Name\") > 0");
                         });
                 });
 
@@ -185,12 +185,12 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DoctorId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -204,12 +204,12 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DoctorId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -223,15 +223,15 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -245,19 +245,19 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -270,10 +270,10 @@ namespace AspNetExample.Database.Migrations
             modelBuilder.Entity("AspNetExample.Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -288,20 +288,20 @@ namespace AspNetExample.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DepartmentId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("Places")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -312,9 +312,9 @@ namespace AspNetExample.Database.Migrations
 
                     b.ToTable("Wards", t =>
                         {
-                            t.HasCheckConstraint("CK_Wards_Name", "LEN(Name) > 0");
+                            t.HasCheckConstraint("CK_Wards_Name", "LENGTH(\"Name\") > 0");
 
-                            t.HasCheckConstraint("CK_Wards_Places", "Places > 0");
+                            t.HasCheckConstraint("CK_Wards_Places", "\"Places\" > 0");
                         });
                 });
 

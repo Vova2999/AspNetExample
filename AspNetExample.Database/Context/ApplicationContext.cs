@@ -46,7 +46,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<Department>()
             .Property(x => x.Financing)
-            .HasColumnType("money")
+            .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0);
 
         modelBuilder.Entity<Department>()
@@ -60,17 +60,17 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Department>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Departments_Building",
-                "Building BETWEEN 1 AND 5"));
+                "\"Building\" BETWEEN 1 AND 5"));
 
         modelBuilder.Entity<Department>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Departments_Financing",
-                "Financing >= 0"));
+                "\"Financing\" >= 0"));
 
         modelBuilder.Entity<Department>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Departments_Name",
-                "LEN(Name) > 0"));
+                "LENGTH(\"Name\") > 0"));
 
         #endregion
 
@@ -87,7 +87,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Disease>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Diseases_Name",
-                "LEN(Name) > 0"));
+                "LENGTH(\"Name\") > 0"));
 
         #endregion
 
@@ -95,22 +95,22 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<Doctor>()
             .Property(x => x.Salary)
-            .HasColumnType("money");
+            .HasColumnType("decimal(18,2)");
 
         modelBuilder.Entity<Doctor>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Doctors_Name",
-                "LEN(Name) > 0"));
+                "LENGTH(\"Name\") > 0"));
 
         modelBuilder.Entity<Doctor>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Doctors_Salary",
-                "Salary > 0"));
+                "\"Salary\" > 0"));
 
         modelBuilder.Entity<Doctor>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Doctors_Surname",
-                "LEN(Surname) > 0"));
+                "LENGTH(\"Surname\") > 0"));
 
         #endregion
 
@@ -138,12 +138,12 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<DoctorExamination>()
             .Property(x => x.Date)
-            .HasDefaultValueSql("GETDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<DoctorExamination>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_DoctorsExaminations_Date",
-                "Date <= GETDATE()"));
+                "\"Date\" <= CURRENT_TIMESTAMP"));
 
         #endregion
 
@@ -160,7 +160,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Examination>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Examinations_Name",
-                "LEN(Name) > 0"));
+                "LENGTH(\"Name\") > 0"));
 
         #endregion
 
@@ -247,12 +247,12 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Ward>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Wards_Name",
-                "LEN(Name) > 0"));
+                "LENGTH(\"Name\") > 0"));
 
         modelBuilder.Entity<Ward>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Wards_Places",
-                "Places > 0"));
+                "\"Places\" > 0"));
 
         #endregion
     }

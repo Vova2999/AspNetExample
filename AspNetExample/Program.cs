@@ -1,13 +1,10 @@
 using System.ComponentModel;
 using AspNetExample.Common.Extensions;
 using AspNetExample.Converters;
-using AspNetExample.Domain.Entities;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
-using AspNetExample.Services.Managers;
 using AspNetExample.Services.Startup;
-using AspNetExample.Services.Stores;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
