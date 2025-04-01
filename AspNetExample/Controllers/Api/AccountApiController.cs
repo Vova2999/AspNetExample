@@ -44,25 +44,7 @@ public class AccountApiController : ControllerBase
         if (user == null || !await _applicationContextUserManager.CheckPasswordAsync(user, login.Password))
             throw new UnauthorizedException("Некорректные логин и(или) пароль");
 
-        var roles = await _applicationContextUserManager.GetRolesAsync(user);
-        var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name)
-            }
-            .Concat(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var symmetricSecurityKey = Constants.GetJwtSymmetricSecurityKey();
-        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-
-        var jwtSecurityToken = new JwtSecurityToken(
-            Constants.JwtIssuer,
-            Constants.JwtAudience,
-            claims,
-            expires: DateTime.UtcNow.Add(Constants.JwtLifetime),
-            signingCredentials: signingCredentials);
-
-        var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        var token = await CreateJwtToken(user);
         return new TokenDto { Token = token };
     }
 
@@ -96,7 +78,17 @@ public class AccountApiController : ControllerBase
             throw new InternalServerErrorException(result.Errors.JoinErrors());
     }
 
-    [HttpPost("changePassword")]
+    [HttpPost("refresh")]
+    public async Task<TokenDto> RefreshToken()
+    {
+        var user = await _applicationContextUserManager.GetUserAndLoadRolesAsync(HttpContext.User)
+            ?? throw new InvalidOperationException("User is null");
+
+        var newToken = await CreateJwtToken(user);
+        return new TokenDto { Token = newToken };
+    }
+
+    [HttpPost("change-password")]
     public async Task ChangePassword(
         [FromBody] ChangePasswordDto changePassword)
     {
@@ -117,5 +109,26 @@ public class AccountApiController : ControllerBase
         var changePasswordResult = await _applicationContextUserManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
         if (!changePasswordResult.Succeeded)
             throw new BadRequestException("Старый пароль некорректен");
+    }
+
+    private async Task<string> CreateJwtToken(User user)
+    {
+        var roles = await _applicationContextUserManager.GetRolesAsync(user);
+        var claims = roles.Select(role => new Claim(ClaimTypes.Role, role))
+            .Prepend(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()))
+            .Prepend(new Claim(ClaimTypes.Name, user.Name));
+
+        var symmetricSecurityKey = Constants.GetJwtSymmetricSecurityKey();
+        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+        var jwtSecurityToken = new JwtSecurityToken(
+            Constants.JwtIssuer,
+            Constants.JwtAudience,
+            claims,
+            expires: DateTime.UtcNow.Add(Constants.JwtLifetime),
+            signingCredentials: signingCredentials);
+
+        var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        return token;
     }
 }

@@ -3,6 +3,7 @@ using AspNetExample.Services.Stores;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace AspNetExample.Services.Managers;
 
@@ -31,6 +32,14 @@ public class ApplicationContextUserManager : UserManager<User>
     {
     }
 
+    public Task<User?> GetUserAndLoadRolesAsync(ClaimsPrincipal principal)
+    {
+        ArgumentNullException.ThrowIfNull(principal);
+
+        var id = GetUserId(principal);
+        return id == null ? Task.FromResult<User?>(null) : FindByIdAndLoadRolesAsync(id);
+    }
+
     public async Task<User?> FindByIdAndLoadRolesAsync(string userId)
     {
         ThrowIfDisposed();
@@ -43,8 +52,8 @@ public class ApplicationContextUserManager : UserManager<User>
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(userName);
-        userName = NormalizeName(userName);
 
+        userName = NormalizeName(userName);
         return await ((IApplicationContextUserStore) Store)
             .FindByNameAndLoadRolesAsync(userName, CancellationToken).ConfigureAwait(false);
     }

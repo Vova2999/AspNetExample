@@ -12,9 +12,11 @@ public static class Constants
 
     public const string MultiAuthScheme = "MultiAuthScheme";
 
+    public static readonly TimeSpan CookieLifetime = TimeSpan.FromMinutes(60);
+
     public const string JwtIssuer = "AspNetExample";
     public const string JwtAudience = "AspNetExampleClient";
-    public static readonly TimeSpan JwtLifetime = TimeSpan.FromMinutes(600);
+    public static readonly TimeSpan JwtLifetime = TimeSpan.FromMinutes(60);
     private const string JwtKey = "AnySecretKeyForAspNetExample!123456";
 
     public static SymmetricSecurityKey GetJwtSymmetricSecurityKey()

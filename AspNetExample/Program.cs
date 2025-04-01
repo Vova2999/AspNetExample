@@ -46,7 +46,8 @@ public static class Program
                     ValidAudience = Constants.JwtAudience,
                     ValidateLifetime = true,
                     IssuerSigningKey = Constants.GetJwtSymmetricSecurityKey(),
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             })
             .AddPolicyScheme(
@@ -59,6 +60,12 @@ public static class Program
                             ? JwtBearerDefaults.AuthenticationScheme
                             : IdentityConstants.ApplicationScheme;
                 });
+
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = Constants.CookieLifetime;
+        });
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
