@@ -7,19 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Services.Stores;
 
-public class ApplicationContextUserStore : IQueryableUserStore<User>, IUserPasswordStore<User>, IUserRoleStore<User>, IAsyncDisposable
+public class ApplicationContextUserStore :
+    IApplicationContextUserStore,
+    IQueryableUserStore<User>,
+    IUserPasswordStore<User>,
+    IUserRoleStore<User>,
+    IAsyncDisposable
 {
-    private readonly IRoleStore<Role> _roleStore;
     private readonly ApplicationContext _context;
+    private readonly IApplicationContextRoleStore _applicationContextRoleStore;
 
     public IQueryable<User> Users => _context.Users;
 
     public ApplicationContextUserStore(
-        IRoleStore<Role> roleStore,
-        IApplicationContextFactory applicationContextFactory)
+        IApplicationContextFactory applicationContextFactory,
+        IApplicationContextRoleStore applicationContextRoleStore)
     {
-        _roleStore = roleStore;
         _context = applicationContextFactory.Create();
+        _applicationContextRoleStore = applicationContextRoleStore;
     }
 
     public Task<string> GetUserIdAsync(User user, CancellationToken cancellationToken)
@@ -67,11 +72,32 @@ public class ApplicationContextUserStore : IQueryableUserStore<User>, IUserPassw
         return await _context.Users.FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
     }
 
+    public async Task<User?> FindByIdAndLoadRolesAsync(string userId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var id = Guid.Parse(userId);
+        return await _context.Users
+            .Include(user => user.UserRoles)
+            .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+    }
+
     public async Task<User?> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         return await _context.Users.FirstOrDefaultAsync(user => user.NormalizedName == normalizedUserName, cancellationToken);
+    }
+
+    public async Task<User?> FindByNameAndLoadRolesAsync(string normalizedUserName, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return await _context.Users
+            .Include(user => user.UserRoles)
+            .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(user => user.NormalizedName == normalizedUserName, cancellationToken);
     }
 
     public async Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken)
@@ -131,7 +157,7 @@ public class ApplicationContextUserStore : IQueryableUserStore<User>, IUserPassw
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var role = await _roleStore.FindByNameAsync(roleName, cancellationToken);
+        var role = await _applicationContextRoleStore.FindByNameAsync(roleName, cancellationToken);
         if (role == null)
             throw new InvalidOperationException($"Role with name {roleName} not found");
 
@@ -143,7 +169,7 @@ public class ApplicationContextUserStore : IQueryableUserStore<User>, IUserPassw
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var role = await _roleStore.FindByNameAsync(roleName, cancellationToken);
+        var role = await _applicationContextRoleStore.FindByNameAsync(roleName, cancellationToken);
         if (role == null)
             throw new InvalidOperationException($"Role with name {roleName} not found");
 
@@ -156,18 +182,35 @@ public class ApplicationContextUserStore : IQueryableUserStore<User>, IUserPassw
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await _context.UserRoles
-            .Where(userRole => userRole.UserId == user.Id)
-            .Select(userRole => userRole.Role.Name)
-            .ToListAsync(cancellationToken);
+        // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        var isUserRolesLoaded = user.UserRoles != null &&
+            (!user.UserRoles.Any() || user.UserRoles.First().Role != null);
+        // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+
+        return isUserRolesLoaded
+            ? user.UserRoles!
+                .Select(userRole => userRole.Role.Name)
+                .ToList()
+            : await _context.UserRoles
+                .Where(userRole => userRole.UserId == user.Id)
+                .Select(userRole => userRole.Role.Name)
+                .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> IsInRoleAsync(User user, string roleName, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await _context.UserRoles
-            .AnyAsync(userRole => userRole.UserId == user.Id && userRole.Role.NormalizedName == roleName, cancellationToken);
+        // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        var isUserRolesLoaded = user.UserRoles != null &&
+            (!user.UserRoles.Any() || user.UserRoles.First().Role != null);
+        // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+
+        return isUserRolesLoaded
+            ? user.UserRoles!
+                .Any(userRole => userRole.Role.NormalizedName == roleName)
+            : await _context.UserRoles
+                .AnyAsync(userRole => userRole.UserId == user.Id && userRole.Role.NormalizedName == roleName, cancellationToken);
     }
 
     public async Task<IList<User>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)

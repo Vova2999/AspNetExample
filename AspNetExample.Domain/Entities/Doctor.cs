@@ -10,7 +10,7 @@ public class Doctor
     public string Name { get; set; }
     public decimal Salary { get; set; }
     public string Surname { get; set; }
-    public ICollection<Intern> Interns { get; set; } = new List<Intern>();
-    public ICollection<Professor> Professors { get; set; } = new List<Professor>();
-    public ICollection<DoctorExamination> DoctorsExaminations { get; set; } = new List<DoctorExamination>();
+    public ICollection<Intern> Interns { get; set; }
+    public ICollection<Professor> Professors { get; set; }
+    public ICollection<DoctorExamination> DoctorsExaminations { get; set; }
 }

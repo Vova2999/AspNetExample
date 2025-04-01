@@ -8,5 +8,5 @@ public class Examination
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public ICollection<DoctorExamination> DoctorsExaminations { get; set; } = new List<DoctorExamination>();
+    public ICollection<DoctorExamination> DoctorsExaminations { get; set; }
 }

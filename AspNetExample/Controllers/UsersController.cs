@@ -34,6 +34,8 @@ public class UsersController : Controller
     public async Task<IActionResult> Index([FromQuery] UsersIndexModel? model)
     {
         var usersQuery = _applicationContextUserManager.Users
+            .Include(user => user.UserRoles)
+            .ThenInclude(userRole => userRole.Role)
             .AsNoTracking();
 
         var searchString = model?.SearchString;
@@ -104,7 +106,7 @@ public class UsersController : Controller
     [HttpGet("[controller]/[action]/{id:guid}")]
     public async Task<IActionResult> Edit([FromRoute] Guid id)
     {
-        var user = await _applicationContextUserManager.FindByIdAsync(id.ToString());
+        var user = await _applicationContextUserManager.FindByIdAndLoadRolesAsync(id.ToString());
         if (user == null)
             return NotFound();
 
@@ -125,7 +127,7 @@ public class UsersController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var user = await _applicationContextUserManager.FindByIdAsync(id.ToString());
+        var user = await _applicationContextUserManager.FindByIdAndLoadRolesAsync(id.ToString());
         if (user == null)
             return NotFound();
 

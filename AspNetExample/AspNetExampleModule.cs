@@ -27,6 +27,9 @@ public static class AspNetExampleModule
         service.AddScoped<RoleManager<Role>, ApplicationContextRoleManager>();
         service.AddScoped<SignInManager<User>, ApplicationContextSignInManager>();
 
+        service.AddScoped<IApplicationContextUserStore, ApplicationContextUserStore>();
+        service.AddScoped<IApplicationContextRoleStore, ApplicationContextRoleStore>();
+
         service.AddIdentity<User, Role>()
             .AddUserStore<ApplicationContextUserStore>()
             .AddRoleStore<ApplicationContextRoleStore>();

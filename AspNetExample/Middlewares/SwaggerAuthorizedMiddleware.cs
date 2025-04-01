@@ -53,7 +53,7 @@ public class SwaggerAuthorizedMiddleware : IMiddleware
             return false;
         }
 
-        var user = await applicationContextUserManager.FindByIdAsync(userId);
+        var user = await applicationContextUserManager.FindByIdAndLoadRolesAsync(userId);
         if (user == null)
         {
             _logger.LogWarning($"User {userId} not found");

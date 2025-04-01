@@ -11,5 +11,5 @@ public class Ward
     public int Places { get; set; }
     public int DepartmentId { get; set; }
     public Department Department { get; set; }
-    public ICollection<DoctorExamination> DoctorsExaminations { get; set; } = new List<DoctorExamination>();
+    public ICollection<DoctorExamination> DoctorsExaminations { get; set; }
 }
