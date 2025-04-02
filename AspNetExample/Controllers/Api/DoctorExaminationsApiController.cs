@@ -38,7 +38,8 @@ public class DoctorExaminationsApiController : ControllerBase
         [FromQuery] string[]? diseaseNames,
         [FromQuery] string[]? doctorNames,
         [FromQuery] string[]? examinationNames,
-        [FromQuery] string[]? wardNames)
+        [FromQuery] string[]? wardNames,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -66,14 +67,15 @@ public class DoctorExaminationsApiController : ControllerBase
 
         var doctorExaminations = await doctorExaminationsQuery
             .Select(doctorExamination => doctorExamination.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return doctorExaminations;
     }
 
     [HttpGet("{id:int}")]
     public async Task<DoctorExaminationDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -83,7 +85,7 @@ public class DoctorExaminationsApiController : ControllerBase
             .Include(doctorExamination => doctorExamination.Examination)
             .Include(doctorExamination => doctorExamination.Ward)
             .AsNoTracking()
-            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id);
+            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id, cancellationToken);
 
         return doctorExaminations == null
             ? throw new NotFoundException($"Не найден осмотр с id = {id}")
@@ -93,11 +95,12 @@ public class DoctorExaminationsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DoctorExaminationDto> Create(
-        [FromBody] DoctorExaminationDto doctorExaminationDto)
+        [FromBody] DoctorExaminationDto doctorExaminationDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        var (disease, doctor, examination, ward) = await ValidateDoctorExaminationModelAsync(context, doctorExaminationDto);
+        var (disease, doctor, examination, ward) = await ValidateDoctorExaminationModelAsync(context, doctorExaminationDto, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -111,7 +114,7 @@ public class DoctorExaminationsApiController : ControllerBase
         };
 
         context.DoctorsExaminations.Add(doctorExamination);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"DoctorExamination with id = {doctorExamination.Id} created");
 
@@ -122,17 +125,18 @@ public class DoctorExaminationsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DoctorExaminationDto> Update(
         [FromRoute] int id,
-        [FromBody] DoctorExaminationDto doctorExaminationDto)
+        [FromBody] DoctorExaminationDto doctorExaminationDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctorExamination = await context.DoctorsExaminations
-            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id);
+            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id, cancellationToken);
 
         if (doctorExamination == null)
             throw new NotFoundException($"Не найден осмотр с id = {id}");
 
-        var (disease, doctor, examination, ward) = await ValidateDoctorExaminationModelAsync(context, doctorExaminationDto);
+        var (disease, doctor, examination, ward) = await ValidateDoctorExaminationModelAsync(context, doctorExaminationDto, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -142,7 +146,7 @@ public class DoctorExaminationsApiController : ControllerBase
         doctorExamination.ExaminationId = examination.Id;
         doctorExamination.WardId = ward.Id;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"DoctorExamination with id = {id} updated");
 
@@ -152,26 +156,28 @@ public class DoctorExaminationsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctorExamination = await context.DoctorsExaminations
-            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id);
+            .FirstOrDefaultAsync(doctorExamination => doctorExamination.Id == id, cancellationToken);
 
         if (doctorExamination == null)
             throw new NotFoundException($"Не найден осмотр с id = {id}");
 
         context.DoctorsExaminations.Remove(doctorExamination);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"DoctorExamination with id = {id} deleted");
     }
 
     private async Task<(Disease, Doctor, Examination, Ward)> ValidateDoctorExaminationModelAsync(
         ApplicationContext context,
-        DoctorExaminationDto? doctorExaminationDto)
+        DoctorExaminationDto? doctorExaminationDto,
+        CancellationToken cancellationToken)
     {
         if (doctorExaminationDto == null)
             return (null, null, null, null)!;
@@ -191,7 +197,8 @@ public class DoctorExaminationsApiController : ControllerBase
         else
         {
             currentDisease = await context.Diseases.FirstOrDefaultAsync(disease =>
-                EF.Functions.Like(doctorExaminationDto.DiseaseName, disease.Name));
+                    EF.Functions.Like(doctorExaminationDto.DiseaseName, disease.Name),
+                cancellationToken);
 
             if (currentDisease == null)
                 ModelState.AddModelError(nameof(doctorExaminationDto.DiseaseName), "Болезнь не найдена.");
@@ -204,7 +211,8 @@ public class DoctorExaminationsApiController : ControllerBase
         else
         {
             currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
-                EF.Functions.Like(doctorExaminationDto.DoctorName, doctor.Name));
+                    EF.Functions.Like(doctorExaminationDto.DoctorName, doctor.Name),
+                cancellationToken);
 
             if (currentDoctor == null)
                 ModelState.AddModelError(nameof(doctorExaminationDto.DoctorName), "Доктор не найден.");
@@ -217,7 +225,8 @@ public class DoctorExaminationsApiController : ControllerBase
         else
         {
             currentExamination = await context.Examinations.FirstOrDefaultAsync(examination =>
-                EF.Functions.Like(doctorExaminationDto.ExaminationName, examination.Name));
+                    EF.Functions.Like(doctorExaminationDto.ExaminationName, examination.Name),
+                cancellationToken);
 
             if (currentExamination == null)
                 ModelState.AddModelError(nameof(doctorExaminationDto.ExaminationName), "Обследование не найдено.");
@@ -230,7 +239,8 @@ public class DoctorExaminationsApiController : ControllerBase
         else
         {
             currentWard = await context.Wards.FirstOrDefaultAsync(ward =>
-                EF.Functions.Like(doctorExaminationDto.WardName, ward.Name));
+                    EF.Functions.Like(doctorExaminationDto.WardName, ward.Name),
+                cancellationToken);
 
             if (currentWard == null)
                 ModelState.AddModelError(nameof(doctorExaminationDto.WardName), "Палата не найдена.");

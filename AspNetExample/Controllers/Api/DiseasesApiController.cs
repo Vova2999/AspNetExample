@@ -33,7 +33,8 @@ public class DiseasesApiController : ControllerBase
 
     [HttpGet]
     public async Task<DiseaseDto[]> GetAll(
-        [FromQuery] string[]? names)
+        [FromQuery] string[]? names,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -47,20 +48,21 @@ public class DiseasesApiController : ControllerBase
 
         var diseases = await diseasesQuery
             .Select(disease => disease.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return diseases;
     }
 
     [HttpGet("{id:int}")]
     public async Task<DiseaseDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var disease = await context.Diseases
             .AsNoTracking()
-            .FirstOrDefaultAsync(disease => disease.Id == id);
+            .FirstOrDefaultAsync(disease => disease.Id == id, cancellationToken);
 
         return disease == null
             ? throw new NotFoundException($"Не найдена болезнь с id = {id}")
@@ -70,11 +72,12 @@ public class DiseasesApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DiseaseDto> Create(
-        [FromBody] DiseaseDto diseaseDto)
+        [FromBody] DiseaseDto diseaseDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDiseaseModelAsync(context, diseaseDto);
+        await ValidateDiseaseModelAsync(context, diseaseDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -84,7 +87,7 @@ public class DiseasesApiController : ControllerBase
         };
 
         context.Diseases.Add(disease);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Disease with id = {disease.Id} created");
 
@@ -95,23 +98,24 @@ public class DiseasesApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DiseaseDto> Update(
         [FromRoute] int id,
-        [FromBody] DiseaseDto diseaseDto)
+        [FromBody] DiseaseDto diseaseDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var disease = await context.Diseases
-            .FirstOrDefaultAsync(disease => disease.Id == id);
+            .FirstOrDefaultAsync(disease => disease.Id == id, cancellationToken);
 
         if (disease == null)
             throw new NotFoundException($"Не найдена болезнь с id = {id}");
 
-        await ValidateDiseaseModelAsync(context, diseaseDto, disease.Id);
+        await ValidateDiseaseModelAsync(context, diseaseDto, disease.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
         disease.Name = diseaseDto.Name;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Disease with id = {id} updated");
 
@@ -121,19 +125,20 @@ public class DiseasesApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var disease = await context.Diseases
-            .FirstOrDefaultAsync(disease => disease.Id == id);
+            .FirstOrDefaultAsync(disease => disease.Id == id, cancellationToken);
 
         if (disease == null)
             throw new NotFoundException($"Не найдена болезнь с id = {id}");
 
         context.Diseases.Remove(disease);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Disease with id = {id} deleted");
     }
@@ -141,7 +146,8 @@ public class DiseasesApiController : ControllerBase
     private async Task ValidateDiseaseModelAsync(
         ApplicationContext context,
         DiseaseDto? diseaseDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (diseaseDto == null)
             return;
@@ -153,8 +159,9 @@ public class DiseasesApiController : ControllerBase
         else
         {
             var hasConflictedName = await context.Diseases.AnyAsync(disease =>
-                (!currentId.HasValue || disease.Id != currentId.Value) &&
-                EF.Functions.Like(diseaseDto.Name, disease.Name));
+                    (!currentId.HasValue || disease.Id != currentId.Value) &&
+                    EF.Functions.Like(diseaseDto.Name, disease.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(diseaseDto.Name), "Название должно быть уникальным.");

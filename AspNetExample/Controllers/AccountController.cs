@@ -25,7 +25,8 @@ public class AccountController : Controller
     }
 
     [AllowAnonymous]
-    public IActionResult Login([FromQuery] string? returnUrl = null)
+    public IActionResult Login(
+        [FromQuery] string? returnUrl = null)
     {
         return View(new LoginModel { ReturnUrl = returnUrl });
     }
@@ -33,7 +34,8 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login([FromForm] LoginModel model)
+    public async Task<IActionResult> Login(
+        [FromForm] LoginModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -53,7 +55,8 @@ public class AccountController : Controller
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Register([FromQuery] string? returnUrl = null)
+    public IActionResult Register(
+        [FromQuery] string? returnUrl = null)
     {
         return View(new RegisterModel { ReturnUrl = returnUrl });
     }
@@ -61,7 +64,8 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register([FromForm] RegisterModel model)
+    public async Task<IActionResult> Register(
+        [FromForm] RegisterModel model)
     {
         var conflictedUser = await _applicationContextUserManager.FindByNameAsync(model.Login);
         if (conflictedUser != null)

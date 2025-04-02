@@ -33,7 +33,8 @@ public class InternsApiController : ControllerBase
 
     [HttpGet]
     public async Task<InternDto[]> GetAll(
-        [FromQuery] string[]? doctorNames)
+        [FromQuery] string[]? doctorNames,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -48,21 +49,22 @@ public class InternsApiController : ControllerBase
 
         var interns = await internsQuery
             .Select(intern => intern.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return interns;
     }
 
     [HttpGet("{id:int}")]
     public async Task<InternDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var intern = await context.Interns
             .Include(intern => intern.Doctor)
             .AsNoTracking()
-            .FirstOrDefaultAsync(intern => intern.Id == id);
+            .FirstOrDefaultAsync(intern => intern.Id == id, cancellationToken);
 
         return intern == null
             ? throw new NotFoundException($"Не найден стажер с id = {id}")
@@ -72,11 +74,12 @@ public class InternsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<InternDto> Create(
-        [FromBody] InternDto internDto)
+        [FromBody] InternDto internDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        var doctor = await ValidateInternModelAsync(context, internDto);
+        var doctor = await ValidateInternModelAsync(context, internDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -86,7 +89,7 @@ public class InternsApiController : ControllerBase
         };
 
         context.Interns.Add(intern);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Intern with id = {intern.Id} created");
 
@@ -97,23 +100,24 @@ public class InternsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<InternDto> Update(
         [FromRoute] int id,
-        [FromBody] InternDto internDto)
+        [FromBody] InternDto internDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var intern = await context.Interns
-            .FirstOrDefaultAsync(intern => intern.Id == id);
+            .FirstOrDefaultAsync(intern => intern.Id == id, cancellationToken);
 
         if (intern == null)
             throw new NotFoundException($"Не найден стажер с id = {id}");
 
-        var doctor = await ValidateInternModelAsync(context, internDto, intern.Id);
+        var doctor = await ValidateInternModelAsync(context, internDto, intern.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
         intern.DoctorId = doctor.Id;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Intern with id = {id} updated");
 
@@ -123,19 +127,20 @@ public class InternsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var intern = await context.Interns
-            .FirstOrDefaultAsync(intern => intern.Id == id);
+            .FirstOrDefaultAsync(intern => intern.Id == id, cancellationToken);
 
         if (intern == null)
             throw new NotFoundException($"Не найден стажер с id = {id}");
 
         context.Interns.Remove(intern);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Intern with id = {id} deleted");
     }
@@ -143,7 +148,8 @@ public class InternsApiController : ControllerBase
     private async Task<Doctor> ValidateInternModelAsync(
         ApplicationContext context,
         InternDto? internDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (internDto == null)
             return null!;
@@ -157,7 +163,8 @@ public class InternsApiController : ControllerBase
         else
         {
             currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
-                EF.Functions.Like(internDto.DoctorName, doctor.Name));
+                    EF.Functions.Like(internDto.DoctorName, doctor.Name),
+                cancellationToken);
 
             if (currentDoctor == null)
             {
@@ -166,8 +173,9 @@ public class InternsApiController : ControllerBase
             else
             {
                 var isAlreadyIntern = await context.Interns.AnyAsync(intern =>
-                    (!currentId.HasValue || intern.Id != currentId.Value) &&
-                    intern.DoctorId == currentDoctor.Id);
+                        (!currentId.HasValue || intern.Id != currentId.Value) &&
+                        intern.DoctorId == currentDoctor.Id,
+                    cancellationToken);
 
                 if (isAlreadyIntern)
                     ModelState.AddModelError(nameof(internDto.DoctorName), "Доктор уже является стажером.");

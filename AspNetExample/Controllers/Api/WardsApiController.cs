@@ -36,7 +36,8 @@ public class WardsApiController : ControllerBase
         [FromQuery] string[]? names,
         [FromQuery] int? placesFrom,
         [FromQuery] int? placesTo,
-        [FromQuery] string[]? departmentNames)
+        [FromQuery] string[]? departmentNames,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -57,21 +58,22 @@ public class WardsApiController : ControllerBase
 
         var wards = await wardsQuery
             .Select(ward => ward.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return wards;
     }
 
     [HttpGet("{id:int}")]
     public async Task<WardDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var ward = await context.Wards
             .Include(ward => ward.Department)
             .AsNoTracking()
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         return ward == null
             ? throw new NotFoundException($"Не найдена палата с id = {id}")
@@ -81,11 +83,12 @@ public class WardsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<WardDto> Create(
-        [FromBody] WardDto wardDto)
+        [FromBody] WardDto wardDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        var department = await ValidateWardModelAsync(context, wardDto);
+        var department = await ValidateWardModelAsync(context, wardDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -97,7 +100,7 @@ public class WardsApiController : ControllerBase
         };
 
         context.Wards.Add(ward);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Ward with id = {ward.Id} created");
 
@@ -108,17 +111,18 @@ public class WardsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<WardDto> Update(
         [FromRoute] int id,
-        [FromBody] WardDto wardDto)
+        [FromBody] WardDto wardDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var ward = await context.Wards
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             throw new NotFoundException($"Не найдена палата с id = {id}");
 
-        var department = await ValidateWardModelAsync(context, wardDto, ward.Id);
+        var department = await ValidateWardModelAsync(context, wardDto, ward.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -126,7 +130,7 @@ public class WardsApiController : ControllerBase
         ward.Places = wardDto.Places;
         ward.DepartmentId = department.Id;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Ward with id = {id} updated");
 
@@ -136,19 +140,20 @@ public class WardsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var ward = await context.Wards
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             throw new NotFoundException($"Не найдена палата с id = {id}");
 
         context.Wards.Remove(ward);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Ward with id = {id} deleted");
     }
@@ -156,7 +161,8 @@ public class WardsApiController : ControllerBase
     private async Task<Department> ValidateWardModelAsync(
         ApplicationContext context,
         WardDto? wardDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (wardDto == null)
             return null!;
@@ -174,8 +180,9 @@ public class WardsApiController : ControllerBase
         else
         {
             var hasConflictedName = await context.Wards.AnyAsync(ward =>
-                (!currentId.HasValue || ward.Id != currentId.Value) &&
-                EF.Functions.Like(wardDto.Name, ward.Name));
+                    (!currentId.HasValue || ward.Id != currentId.Value) &&
+                    EF.Functions.Like(wardDto.Name, ward.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(wardDto.Name), "Название должно быть уникальным.");
@@ -190,7 +197,8 @@ public class WardsApiController : ControllerBase
         else
         {
             currentDepartment = await context.Departments.FirstOrDefaultAsync(department =>
-                EF.Functions.Like(wardDto.DepartmentName, department.Name));
+                    EF.Functions.Like(wardDto.DepartmentName, department.Name),
+                cancellationToken);
 
             if (currentDepartment == null)
                 ModelState.AddModelError(nameof(wardDto.Name), "Департамент не найден.");

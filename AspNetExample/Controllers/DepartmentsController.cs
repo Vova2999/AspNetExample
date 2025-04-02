@@ -25,7 +25,9 @@ public class DepartmentsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] DepartmentsIndexModel? model)
+    public async Task<IActionResult> Index(
+        [FromQuery] DepartmentsIndexModel? model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -60,12 +62,12 @@ public class DepartmentsController : Controller
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
-        var totalCount = departmentsQuery.Count();
+        var totalCount = await departmentsQuery.CountAsync(cancellationToken);
         var departments = await departmentsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
             .Select(department => department.ToModel())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return View(new DepartmentsIndexModel
         {
@@ -77,14 +79,16 @@ public class DepartmentsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
-    public async Task<IActionResult> Details([FromRoute] int id)
+    public async Task<IActionResult> Details(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var department = await context.Departments
             .Include(department => department.Wards)
             .AsNoTracking()
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             return NotFound();
@@ -101,11 +105,13 @@ public class DepartmentsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Create([FromForm] DepartmentModel model)
+    public async Task<IActionResult> Create(
+        [FromForm] DepartmentModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDepartmentModelAsync(context, model);
+        await ValidateDepartmentModelAsync(context, model, null, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
@@ -119,20 +125,22 @@ public class DepartmentsController : Controller
 
         context.Departments.Add(department);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var department = await context.Departments
             .AsNoTracking()
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             return NotFound();
@@ -143,17 +151,20 @@ public class DepartmentsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] DepartmentModel model)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        [FromForm] DepartmentModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDepartmentModelAsync(context, model, id);
+        await ValidateDepartmentModelAsync(context, model, id, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
 
         var department = await context.Departments
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             return NotFound();
@@ -162,7 +173,7 @@ public class DepartmentsController : Controller
         department.Financing = model.Financing;
         department.Name = model.Name;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -170,18 +181,20 @@ public class DepartmentsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
         var department = await context.Departments
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             return NotFound();
 
         context.Departments.Remove(department);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -189,7 +202,8 @@ public class DepartmentsController : Controller
     private async Task ValidateDepartmentModelAsync(
         ApplicationContext context,
         DepartmentModel model,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (model.Building is < 1 or > 5)
             ModelState.AddModelError(nameof(model.Building), "Здание должно быть между 1 и 5.");
@@ -200,8 +214,9 @@ public class DepartmentsController : Controller
         if (model.Name.IsSignificant())
         {
             var hasConflictedName = await context.Departments.AnyAsync(department =>
-                (!currentId.HasValue || department.Id != currentId.Value) &&
-                EF.Functions.Like(model.Name, department.Name));
+                    (!currentId.HasValue || department.Id != currentId.Value) &&
+                    EF.Functions.Like(model.Name, department.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");

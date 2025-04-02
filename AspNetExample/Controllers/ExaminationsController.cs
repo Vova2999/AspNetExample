@@ -25,7 +25,9 @@ public class ExaminationsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] ExaminationsIndexModel? model)
+    public async Task<IActionResult> Index(
+        [FromQuery] ExaminationsIndexModel? model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -47,12 +49,12 @@ public class ExaminationsController : Controller
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
-        var totalCount = examinationsQuery.Count();
+        var totalCount = await examinationsQuery.CountAsync(cancellationToken);
         var examinations = await examinationsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
             .Select(examination => examination.ToModel())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return View(new ExaminationsIndexModel
         {
@@ -64,7 +66,9 @@ public class ExaminationsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
-    public async Task<IActionResult> Details([FromRoute] int id)
+    public async Task<IActionResult> Details(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -76,7 +80,7 @@ public class ExaminationsController : Controller
             .Include(disease => disease.DoctorsExaminations)
             .ThenInclude(doctorExamination => doctorExamination.Ward)
             .AsNoTracking()
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             return NotFound();
@@ -93,11 +97,13 @@ public class ExaminationsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Create([FromForm] ExaminationModel model)
+    public async Task<IActionResult> Create(
+        [FromForm] ExaminationModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateExaminationModelAsync(context, model);
+        await ValidateExaminationModelAsync(context, model, null, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
@@ -109,20 +115,22 @@ public class ExaminationsController : Controller
 
         context.Examinations.Add(examination);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var examination = await context.Examinations
             .AsNoTracking()
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             return NotFound();
@@ -133,24 +141,27 @@ public class ExaminationsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] ExaminationModel model)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        [FromForm] ExaminationModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateExaminationModelAsync(context, model, id);
+        await ValidateExaminationModelAsync(context, model, id, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
 
         var examination = await context.Examinations
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             return NotFound();
 
         examination.Name = model.Name;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -158,18 +169,20 @@ public class ExaminationsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
         var examination = await context.Examinations
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             return NotFound();
 
         context.Examinations.Remove(examination);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -177,13 +190,15 @@ public class ExaminationsController : Controller
     private async Task ValidateExaminationModelAsync(
         ApplicationContext context,
         ExaminationModel model,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (model.Name.IsSignificant())
         {
             var hasConflictedName = await context.Examinations.AnyAsync(examination =>
-                (!currentId.HasValue || examination.Id != currentId.Value) &&
-                EF.Functions.Like(model.Name, examination.Name));
+                    (!currentId.HasValue || examination.Id != currentId.Value) &&
+                    EF.Functions.Like(model.Name, examination.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");

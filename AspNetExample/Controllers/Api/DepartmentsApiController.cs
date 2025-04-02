@@ -36,7 +36,8 @@ public class DepartmentsApiController : ControllerBase
         [FromQuery] int[]? buildings,
         [FromQuery] decimal? financingFrom,
         [FromQuery] decimal? financingTo,
-        [FromQuery] string[]? names)
+        [FromQuery] string[]? names,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -56,20 +57,21 @@ public class DepartmentsApiController : ControllerBase
 
         var departments = await departmentsQuery
             .Select(department => department.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return departments;
     }
 
     [HttpGet("{id:int}")]
     public async Task<DepartmentDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var department = await context.Departments
             .AsNoTracking()
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         return department == null
             ? throw new NotFoundException($"Не найден департамент с id = {id}")
@@ -79,11 +81,12 @@ public class DepartmentsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DepartmentDto> Create(
-        [FromBody] DepartmentDto departmentDto)
+        [FromBody] DepartmentDto departmentDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDepartmentModelAsync(context, departmentDto);
+        await ValidateDepartmentModelAsync(context, departmentDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -95,7 +98,7 @@ public class DepartmentsApiController : ControllerBase
         };
 
         context.Departments.Add(department);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Department with id = {department.Id} created");
 
@@ -106,17 +109,18 @@ public class DepartmentsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DepartmentDto> Update(
         [FromRoute] int id,
-        [FromBody] DepartmentDto departmentDto)
+        [FromBody] DepartmentDto departmentDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var department = await context.Departments
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             throw new NotFoundException($"Не найден департамент с id = {id}");
 
-        await ValidateDepartmentModelAsync(context, departmentDto, department.Id);
+        await ValidateDepartmentModelAsync(context, departmentDto, department.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -124,7 +128,7 @@ public class DepartmentsApiController : ControllerBase
         department.Financing = departmentDto.Financing;
         department.Name = departmentDto.Name;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Department with id = {id} updated");
 
@@ -134,19 +138,20 @@ public class DepartmentsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var department = await context.Departments
-            .FirstOrDefaultAsync(department => department.Id == id);
+            .FirstOrDefaultAsync(department => department.Id == id, cancellationToken);
 
         if (department == null)
             throw new NotFoundException($"Не найден департамент с id = {id}");
 
         context.Departments.Remove(department);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Department with id = {id} deleted");
     }
@@ -154,7 +159,8 @@ public class DepartmentsApiController : ControllerBase
     private async Task ValidateDepartmentModelAsync(
         ApplicationContext context,
         DepartmentDto? departmentDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (departmentDto == null)
             return;
@@ -172,8 +178,9 @@ public class DepartmentsApiController : ControllerBase
         else
         {
             var hasConflictedName = await context.Departments.AnyAsync(department =>
-                (!currentId.HasValue || department.Id != currentId.Value) &&
-                EF.Functions.Like(departmentDto.Name, department.Name));
+                    (!currentId.HasValue || department.Id != currentId.Value) &&
+                    EF.Functions.Like(departmentDto.Name, department.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(departmentDto.Name), "Название должно быть уникальным.");

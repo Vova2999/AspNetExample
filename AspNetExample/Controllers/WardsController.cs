@@ -26,7 +26,9 @@ public class WardsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] WardsIndexModel? model)
+    public async Task<IActionResult> Index(
+        [FromQuery] WardsIndexModel? model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -62,12 +64,12 @@ public class WardsController : Controller
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
-        var totalCount = wardsQuery.Count();
+        var totalCount = await wardsQuery.CountAsync(cancellationToken);
         var wards = await wardsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
             .Select(ward => ward.ToModel())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return View(new WardsIndexModel
         {
@@ -79,7 +81,9 @@ public class WardsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
-    public async Task<IActionResult> Details([FromRoute] int id)
+    public async Task<IActionResult> Details(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -93,7 +97,7 @@ public class WardsController : Controller
             .Include(disease => disease.DoctorsExaminations)
             .ThenInclude(doctorExamination => doctorExamination.Examination)
             .AsNoTracking()
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             return NotFound();
@@ -102,26 +106,29 @@ public class WardsController : Controller
     }
 
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        ViewBag.Departments = await GetDepartmentsAsync(context);
+        ViewBag.Departments = await GetDepartmentsAsync(context, null, cancellationToken);
         return View(new WardModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Create([FromForm] WardModel model)
+    public async Task<IActionResult> Create(
+        [FromForm] WardModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateWardModelAsync(context, model);
+        await ValidateWardModelAsync(context, model, null, cancellationToken);
 
         if (!ModelState.IsValid)
         {
-            ViewBag.Departments = await GetDepartmentsAsync(context);
+            ViewBag.Departments = await GetDepartmentsAsync(context, null, cancellationToken);
             return View(model);
         }
 
@@ -134,46 +141,51 @@ public class WardsController : Controller
 
         context.Wards.Add(ward);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var ward = await context.Wards
             .Include(ward => ward.Department)
             .AsNoTracking()
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             return NotFound();
 
-        ViewBag.Departments = await GetDepartmentsAsync(context, ward.DepartmentId);
+        ViewBag.Departments = await GetDepartmentsAsync(context, ward.DepartmentId, cancellationToken);
         return View(ward.ToModel());
     }
 
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] WardModel model)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        [FromForm] WardModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateWardModelAsync(context, model, id);
+        await ValidateWardModelAsync(context, model, id, cancellationToken);
 
         if (!ModelState.IsValid)
         {
-            ViewBag.Departments = await GetDepartmentsAsync(context, model.DepartmentId);
+            ViewBag.Departments = await GetDepartmentsAsync(context, model.DepartmentId, cancellationToken);
             return View(model);
         }
 
         var ward = await context.Wards
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             return NotFound();
@@ -182,7 +194,7 @@ public class WardsController : Controller
         ward.Places = model.Places;
         ward.DepartmentId = model.DepartmentId;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -190,25 +202,28 @@ public class WardsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
         var ward = await context.Wards
-            .FirstOrDefaultAsync(ward => ward.Id == id);
+            .FirstOrDefaultAsync(ward => ward.Id == id, cancellationToken);
 
         if (ward == null)
             return NotFound();
 
         context.Wards.Remove(ward);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
 
     private static async Task<SelectListItem[]> GetDepartmentsAsync(
         ApplicationContext context,
-        int? selectedDepartmentId = null)
+        int? selectedDepartmentId,
+        CancellationToken cancellationToken)
     {
         return await context.Departments
             .OrderBy(e => e.Id)
@@ -218,13 +233,14 @@ public class WardsController : Controller
                 Text = $"{department.Name} ({department.Id})",
                 Selected = department.Id == selectedDepartmentId
             })
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
     }
 
     private async Task ValidateWardModelAsync(
         ApplicationContext context,
         WardModel model,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         ModelState.Remove(nameof(model.DepartmentName));
 
@@ -237,15 +253,17 @@ public class WardsController : Controller
                 ModelState.AddModelError(nameof(model.Name), "Название должно быть строкой с максимальной длиной 20.");
 
             var hasConflictedName = await context.Wards.AnyAsync(ward =>
-                (!currentId.HasValue || ward.Id != currentId.Value) &&
-                EF.Functions.Like(model.Name, ward.Name));
+                    (!currentId.HasValue || ward.Id != currentId.Value) &&
+                    EF.Functions.Like(model.Name, ward.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(model.Name), "Название должно быть уникальным.");
         }
 
         var isDepartmentExists = await context.Departments.AnyAsync(department =>
-            department.Id == model.DepartmentId);
+                department.Id == model.DepartmentId,
+            cancellationToken);
 
         if (!isDepartmentExists)
             ModelState.AddModelError(nameof(model.DepartmentId), "Департамент не найден.");

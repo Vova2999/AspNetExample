@@ -33,7 +33,8 @@ public class ExaminationsApiController : ControllerBase
 
     [HttpGet]
     public async Task<ExaminationDto[]> GetAll(
-        [FromQuery] string[]? names)
+        [FromQuery] string[]? names,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -47,20 +48,21 @@ public class ExaminationsApiController : ControllerBase
 
         var examinations = await examinationsQuery
             .Select(examination => examination.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return examinations;
     }
 
     [HttpGet("{id:int}")]
     public async Task<ExaminationDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var examination = await context.Examinations
             .AsNoTracking()
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         return examination == null
             ? throw new NotFoundException($"Не найдено обследование с id = {id}")
@@ -70,11 +72,12 @@ public class ExaminationsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ExaminationDto> Create(
-        [FromBody] ExaminationDto examinationDto)
+        [FromBody] ExaminationDto examinationDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateExaminationModelAsync(context, examinationDto);
+        await ValidateExaminationModelAsync(context, examinationDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -84,7 +87,7 @@ public class ExaminationsApiController : ControllerBase
         };
 
         context.Examinations.Add(examination);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Examination with id = {examination.Id} created");
 
@@ -95,23 +98,24 @@ public class ExaminationsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ExaminationDto> Update(
         [FromRoute] int id,
-        [FromBody] ExaminationDto examinationDto)
+        [FromBody] ExaminationDto examinationDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var examination = await context.Examinations
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             throw new NotFoundException($"Не найдено обследование с id = {id}");
 
-        await ValidateExaminationModelAsync(context, examinationDto, examination.Id);
+        await ValidateExaminationModelAsync(context, examinationDto, examination.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
         examination.Name = examinationDto.Name;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Examination with id = {id} updated");
 
@@ -121,19 +125,20 @@ public class ExaminationsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var examination = await context.Examinations
-            .FirstOrDefaultAsync(examination => examination.Id == id);
+            .FirstOrDefaultAsync(examination => examination.Id == id, cancellationToken);
 
         if (examination == null)
             throw new NotFoundException($"Не найдено обследование с id = {id}");
 
         context.Examinations.Remove(examination);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Examination with id = {id} deleted");
     }
@@ -141,7 +146,8 @@ public class ExaminationsApiController : ControllerBase
     private async Task ValidateExaminationModelAsync(
         ApplicationContext context,
         ExaminationDto? examinationDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (examinationDto == null)
             return;
@@ -153,8 +159,9 @@ public class ExaminationsApiController : ControllerBase
         else
         {
             var hasConflictedName = await context.Examinations.AnyAsync(examination =>
-                (!currentId.HasValue || examination.Id != currentId.Value) &&
-                EF.Functions.Like(examinationDto.Name, examination.Name));
+                    (!currentId.HasValue || examination.Id != currentId.Value) &&
+                    EF.Functions.Like(examinationDto.Name, examination.Name),
+                cancellationToken);
 
             if (hasConflictedName)
                 ModelState.AddModelError(nameof(examinationDto.Name), "Название должно быть уникальным.");

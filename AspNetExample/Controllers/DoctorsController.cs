@@ -25,7 +25,9 @@ public class DoctorsController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] DoctorsIndexModel? model)
+    public async Task<IActionResult> Index(
+        [FromQuery] DoctorsIndexModel? model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -60,12 +62,12 @@ public class DoctorsController : Controller
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
-        var totalCount = doctorsQuery.Count();
+        var totalCount = await doctorsQuery.CountAsync(cancellationToken);
         var doctors = await doctorsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
             .Select(doctor => doctor.ToModel())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return View(new DoctorsIndexModel
         {
@@ -77,7 +79,9 @@ public class DoctorsController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
-    public async Task<IActionResult> Details([FromRoute] int id)
+    public async Task<IActionResult> Details(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -91,7 +95,7 @@ public class DoctorsController : Controller
             .Include(disease => disease.DoctorsExaminations)
             .ThenInclude(doctorExamination => doctorExamination.Ward)
             .AsNoTracking()
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             return NotFound();
@@ -108,11 +112,13 @@ public class DoctorsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Create([FromForm] DoctorModel model)
+    public async Task<IActionResult> Create(
+        [FromForm] DoctorModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDoctorModelAsync(context, model);
+        await ValidateDoctorModelAsync(context, model, null, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
@@ -126,20 +132,22 @@ public class DoctorsController : Controller
 
         context.Doctors.Add(doctor);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("[controller]/[action]/{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctor = await context.Doctors
             .AsNoTracking()
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             return NotFound();
@@ -150,17 +158,20 @@ public class DoctorsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Edit([FromRoute] int id, [FromForm] DoctorModel model)
+    public async Task<IActionResult> Edit(
+        [FromRoute] int id,
+        [FromForm] DoctorModel model,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDoctorModelAsync(context, model, id);
+        await ValidateDoctorModelAsync(context, model, id, cancellationToken);
 
         if (!ModelState.IsValid)
             return View(model);
 
         var doctor = await context.Doctors
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             return NotFound();
@@ -169,7 +180,7 @@ public class DoctorsController : Controller
         doctor.Salary = model.Salary;
         doctor.Surname = model.Surname;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -177,18 +188,20 @@ public class DoctorsController : Controller
     [HttpPost("[controller]/[action]/{id:int}")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = RoleTokens.AdminRole)]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
         var doctor = await context.Doctors
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             return NotFound();
 
         context.Doctors.Remove(doctor);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return RedirectToAction(nameof(Index));
     }
@@ -196,7 +209,8 @@ public class DoctorsController : Controller
     private async Task ValidateDoctorModelAsync(
         ApplicationContext context,
         DoctorModel model,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (model.Salary <= 0)
             ModelState.AddModelError(nameof(model.Salary), "Зарплата должна должно быть больше 0.");
@@ -204,9 +218,10 @@ public class DoctorsController : Controller
         if (model.Name.IsSignificant())
         {
             var hasConflictedName = await context.Doctors.AnyAsync(doctor =>
-                (!currentId.HasValue || doctor.Id != currentId.Value) &&
-                EF.Functions.Like(model.Name, doctor.Name) &&
-                EF.Functions.Like(model.Surname, doctor.Surname));
+                    (!currentId.HasValue || doctor.Id != currentId.Value) &&
+                    EF.Functions.Like(model.Name, doctor.Name) &&
+                    EF.Functions.Like(model.Surname, doctor.Surname),
+                cancellationToken);
 
             if (hasConflictedName)
             {

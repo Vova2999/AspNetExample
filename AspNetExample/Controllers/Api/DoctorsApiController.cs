@@ -36,7 +36,8 @@ public class DoctorsApiController : ControllerBase
         [FromQuery] string[]? names,
         [FromQuery] decimal? salaryFrom,
         [FromQuery] decimal? salaryTo,
-        [FromQuery] string[]? surnames)
+        [FromQuery] string[]? surnames,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -56,20 +57,21 @@ public class DoctorsApiController : ControllerBase
 
         var doctors = await doctorsQuery
             .Select(doctor => doctor.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return doctors;
     }
 
     [HttpGet("{id:int}")]
     public async Task<DoctorDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctor = await context.Doctors
             .AsNoTracking()
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         return doctor == null
             ? throw new NotFoundException($"Не найден доктор с id = {id}")
@@ -79,11 +81,12 @@ public class DoctorsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DoctorDto> Create(
-        [FromBody] DoctorDto doctorDto)
+        [FromBody] DoctorDto doctorDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        await ValidateDoctorModelAsync(context, doctorDto);
+        await ValidateDoctorModelAsync(context, doctorDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -95,7 +98,7 @@ public class DoctorsApiController : ControllerBase
         };
 
         context.Doctors.Add(doctor);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Doctor with id = {doctor.Id} created");
 
@@ -106,17 +109,18 @@ public class DoctorsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<DoctorDto> Update(
         [FromRoute] int id,
-        [FromBody] DoctorDto doctorDto)
+        [FromBody] DoctorDto doctorDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctor = await context.Doctors
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             throw new NotFoundException($"Не найден доктор с id = {id}");
 
-        await ValidateDoctorModelAsync(context, doctorDto, doctor.Id);
+        await ValidateDoctorModelAsync(context, doctorDto, doctor.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -124,7 +128,7 @@ public class DoctorsApiController : ControllerBase
         doctor.Salary = doctorDto.Salary;
         doctor.Surname = doctorDto.Surname;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Doctor with id = {id} updated");
 
@@ -134,19 +138,20 @@ public class DoctorsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var doctor = await context.Doctors
-            .FirstOrDefaultAsync(doctor => doctor.Id == id);
+            .FirstOrDefaultAsync(doctor => doctor.Id == id, cancellationToken);
 
         if (doctor == null)
             throw new NotFoundException($"Не найден доктор с id = {id}");
 
         context.Doctors.Remove(doctor);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Doctor with id = {id} deleted");
     }
@@ -154,7 +159,8 @@ public class DoctorsApiController : ControllerBase
     private async Task ValidateDoctorModelAsync(
         ApplicationContext context,
         DoctorDto? doctorDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (doctorDto == null)
             return;
@@ -171,9 +177,10 @@ public class DoctorsApiController : ControllerBase
         if (doctorDto.Name.IsSignificant() && doctorDto.Surname.IsSignificant())
         {
             var hasConflictedName = await context.Doctors.AnyAsync(doctor =>
-                (!currentId.HasValue || doctor.Id != currentId.Value) &&
-                EF.Functions.Like(doctorDto.Name, doctor.Name) &&
-                EF.Functions.Like(doctorDto.Surname, doctor.Surname));
+                    (!currentId.HasValue || doctor.Id != currentId.Value) &&
+                    EF.Functions.Like(doctorDto.Name, doctor.Name) &&
+                    EF.Functions.Like(doctorDto.Surname, doctor.Surname),
+                cancellationToken);
 
             if (hasConflictedName)
             {

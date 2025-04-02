@@ -5,7 +5,6 @@ using AspNetExample.Extensions.Models;
 using AspNetExample.Models.Users;
 using AspNetExample.Services.Managers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,24 +13,20 @@ namespace AspNetExample.Controllers;
 [Authorize(Roles = RoleTokens.AdminRole)]
 public class UsersController : Controller
 {
-    private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IPasswordValidator<User> _passwordValidator;
     private readonly ApplicationContextUserManager _applicationContextUserManager;
     private readonly ILogger<UsersController> _logger;
 
     public UsersController(
-        IPasswordHasher<User> passwordHasher,
-        IPasswordValidator<User> passwordValidator,
         ApplicationContextUserManager applicationContextUserManager,
         ILogger<UsersController> logger)
     {
-        _passwordHasher = passwordHasher;
-        _passwordValidator = passwordValidator;
         _applicationContextUserManager = applicationContextUserManager;
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index([FromQuery] UsersIndexModel? model)
+    public async Task<IActionResult> Index(
+        [FromQuery] UsersIndexModel? model,
+        CancellationToken cancellationToken)
     {
         var usersQuery = _applicationContextUserManager.Users
             .Include(user => user.UserRoles)
@@ -55,14 +50,14 @@ public class UsersController : Controller
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
-        var totalCount = usersQuery.Count();
+        var totalCount = await usersQuery.CountAsync(cancellationToken);
         var users = await usersQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
             .Take(Constants.PageSize)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
         var userModels = await users
             .ToModelsAsync(_applicationContextUserManager)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return View(new UsersIndexModel
         {
@@ -80,7 +75,8 @@ public class UsersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([FromForm] UserModel model)
+    public async Task<IActionResult> Create(
+        [FromForm] UserModel model)
     {
         if (model.NewPassword.IsNullOrEmpty())
             ModelState.AddModelError(nameof(model.NewPassword), "Не указан пароль");
@@ -104,7 +100,8 @@ public class UsersController : Controller
     }
 
     [HttpGet("[controller]/[action]/{id:guid}")]
-    public async Task<IActionResult> Edit([FromRoute] Guid id)
+    public async Task<IActionResult> Edit(
+        [FromRoute] Guid id)
     {
         var user = await _applicationContextUserManager.FindByIdAndLoadRolesAsync(id.ToString());
         if (user == null)
@@ -115,13 +112,20 @@ public class UsersController : Controller
 
     [HttpPost("[controller]/[action]/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit([FromRoute] Guid id, [FromForm] UserModel model)
+    public async Task<IActionResult> Edit(
+        [FromRoute] Guid id,
+        [FromForm] UserModel model,
+        CancellationToken cancellationToken)
     {
         if (model.NewPassword.IsSignificant())
         {
-            var result = await _passwordValidator.ValidateAsync(_applicationContextUserManager, null!, model.NewPassword);
-            if (!result.Succeeded)
-                result.Errors.ForEach(error => ModelState.AddModelError(nameof(model.NewPassword), error.Description));
+            var results = await _applicationContextUserManager.PasswordValidators
+                .ToAsyncEnumerable()
+                .SelectAwait(async passwordValidator => await passwordValidator.ValidateAsync(_applicationContextUserManager, null!, model.NewPassword))
+                .ToArrayAsync(cancellationToken);
+
+            if (results.Any(result => !result.Succeeded))
+                results.SelectMany(result => result.Errors).ForEach(error => ModelState.AddModelError(nameof(model.NewPassword), error.Description));
         }
 
         if (!ModelState.IsValid)
@@ -139,7 +143,7 @@ public class UsersController : Controller
 
         if (model.NewPassword.IsSignificant())
         {
-            user.PasswordHash = _passwordHasher.HashPassword(user, model.NewPassword);
+            user.PasswordHash = _applicationContextUserManager.PasswordHasher.HashPassword(user, model.NewPassword);
             await _applicationContextUserManager.UpdateAsync(user);
         }
 
@@ -166,7 +170,8 @@ public class UsersController : Controller
 
     [HttpPost("[controller]/[action]/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] Guid id)
     {
         var user = await _applicationContextUserManager.FindByIdAsync(id.ToString());
         if (user == null)

@@ -33,7 +33,8 @@ public class ProfessorsApiController : ControllerBase
 
     [HttpGet]
     public async Task<ProfessorDto[]> GetAll(
-        [FromQuery] string[]? doctorNames)
+        [FromQuery] string[]? doctorNames,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
@@ -48,21 +49,22 @@ public class ProfessorsApiController : ControllerBase
 
         var professors = await professorsQuery
             .Select(professor => professor.ToDto())
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
         return professors;
     }
 
     [HttpGet("{id:int}")]
     public async Task<ProfessorDto> Get(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var professor = await context.Professors
             .Include(professor => professor.Doctor)
             .AsNoTracking()
-            .FirstOrDefaultAsync(professor => professor.Id == id);
+            .FirstOrDefaultAsync(professor => professor.Id == id, cancellationToken);
 
         return professor == null
             ? throw new NotFoundException($"Не найден профессор с id = {id}")
@@ -72,11 +74,12 @@ public class ProfessorsApiController : ControllerBase
     [HttpPost]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ProfessorDto> Create(
-        [FromBody] ProfessorDto professorDto)
+        [FromBody] ProfessorDto professorDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
-        var doctor = await ValidateProfessorModelAsync(context, professorDto);
+        var doctor = await ValidateProfessorModelAsync(context, professorDto, null, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
@@ -86,7 +89,7 @@ public class ProfessorsApiController : ControllerBase
         };
 
         context.Professors.Add(professor);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Professor with id = {professor.Id} created");
 
@@ -97,23 +100,24 @@ public class ProfessorsApiController : ControllerBase
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task<ProfessorDto> Update(
         [FromRoute] int id,
-        [FromBody] ProfessorDto professorDto)
+        [FromBody] ProfessorDto professorDto,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var professor = await context.Professors
-            .FirstOrDefaultAsync(professor => professor.Id == id);
+            .FirstOrDefaultAsync(professor => professor.Id == id, cancellationToken);
 
         if (professor == null)
             throw new NotFoundException($"Не найден профессор с id = {id}");
 
-        var doctor = await ValidateProfessorModelAsync(context, professorDto, professor.Id);
+        var doctor = await ValidateProfessorModelAsync(context, professorDto, professor.Id, cancellationToken);
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
         professor.DoctorId = doctor.Id;
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Professor with id = {id} updated");
 
@@ -123,19 +127,20 @@ public class ProfessorsApiController : ControllerBase
     [HttpDelete("{id:int}")]
     [Authorize(Roles = RoleTokens.AdminRole)]
     public async Task Delete(
-        [FromRoute] int id)
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
     {
         await using var context = _applicationContextFactory.Create();
 
         var professor = await context.Professors
-            .FirstOrDefaultAsync(professor => professor.Id == id);
+            .FirstOrDefaultAsync(professor => professor.Id == id, cancellationToken);
 
         if (professor == null)
             throw new NotFoundException($"Не найден профессор с id = {id}");
 
         context.Professors.Remove(professor);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Professor with id = {id} deleted");
     }
@@ -143,7 +148,8 @@ public class ProfessorsApiController : ControllerBase
     private async Task<Doctor> ValidateProfessorModelAsync(
         ApplicationContext context,
         ProfessorDto? professorDto,
-        int? currentId = null)
+        int? currentId,
+        CancellationToken cancellationToken)
     {
         if (professorDto == null)
             return null!;
@@ -157,7 +163,8 @@ public class ProfessorsApiController : ControllerBase
         else
         {
             currentDoctor = await context.Doctors.FirstOrDefaultAsync(doctor =>
-                EF.Functions.Like(professorDto.DoctorName, doctor.Name));
+                    EF.Functions.Like(professorDto.DoctorName, doctor.Name),
+                cancellationToken);
 
             if (currentDoctor == null)
             {
@@ -166,8 +173,9 @@ public class ProfessorsApiController : ControllerBase
             else
             {
                 var isAlreadyProfessor = await context.Professors.AnyAsync(professor =>
-                    (!currentId.HasValue || professor.Id != currentId.Value) &&
-                    professor.DoctorId == currentDoctor.Id);
+                        (!currentId.HasValue || professor.Id != currentId.Value) &&
+                        professor.DoctorId == currentDoctor.Id,
+                    cancellationToken);
 
                 if (isAlreadyProfessor)
                     ModelState.AddModelError(nameof(professorDto.DoctorName), "Доктор уже является профессором.");
