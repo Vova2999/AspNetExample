@@ -121,12 +121,14 @@ public class AccountApiController : ControllerBase
         var symmetricSecurityKey = Constants.GetJwtSymmetricSecurityKey();
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
+        var utcNow = DateTime.UtcNow;
         var jwtSecurityToken = new JwtSecurityToken(
             Constants.JwtIssuer,
             Constants.JwtAudience,
             claims,
-            expires: DateTime.UtcNow.Add(Constants.JwtLifetime),
-            signingCredentials: signingCredentials);
+            utcNow,
+            utcNow.Add(Constants.JwtLifetime),
+            signingCredentials);
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         return token;
