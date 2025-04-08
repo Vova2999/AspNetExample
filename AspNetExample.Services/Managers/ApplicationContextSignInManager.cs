@@ -27,4 +27,19 @@ public class ApplicationContextSignInManager : SignInManager<User>
             confirmation)
     {
     }
+
+    public override async Task<SignInResult> PasswordSignInAsync(
+        string userName,
+        string password,
+        bool isPersistent,
+        bool lockoutOnFailure)
+    {
+        var user = await ((ApplicationContextUserManager) UserManager)
+            .FindByNameAndLoadRolesAsync(userName);
+
+        if (user == null)
+            return SignInResult.Failed;
+
+        return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+    }
 }
