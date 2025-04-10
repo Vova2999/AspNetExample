@@ -143,7 +143,7 @@ public class ApplicationContextUserStore :
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return Task.FromResult(user.PasswordHash)!;
+        return Task.FromResult(user.PasswordHash.NullIfEmpty());
     }
 
     public Task<bool> HasPasswordAsync(User user, CancellationToken cancellationToken)
