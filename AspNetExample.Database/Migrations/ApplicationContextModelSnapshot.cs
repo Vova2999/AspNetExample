@@ -48,7 +48,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Departments", t =>
+                    b.ToTable("Departments", null, t =>
                         {
                             t.HasCheckConstraint("CK_Departments_Building", "\"Building\" BETWEEN 1 AND 5");
 
@@ -76,7 +76,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Diseases", t =>
+                    b.ToTable("Diseases", null, t =>
                         {
                             t.HasCheckConstraint("CK_Diseases_Name", "LENGTH(\"Name\") > 0");
                         });
@@ -103,7 +103,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Doctors", t =>
+                    b.ToTable("Doctors", null, t =>
                         {
                             t.HasCheckConstraint("CK_Doctors_Name", "LENGTH(\"Name\") > 0");
 
@@ -148,7 +148,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.HasIndex("WardId");
 
-                    b.ToTable("DoctorsExaminations", t =>
+                    b.ToTable("DoctorsExaminations", null, t =>
                         {
                             t.HasCheckConstraint("CK_DoctorsExaminations_Date", "\"Date\" <= CURRENT_TIMESTAMP");
                         });
@@ -172,7 +172,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Examinations", t =>
+                    b.ToTable("Examinations", null, t =>
                         {
                             t.HasCheckConstraint("CK_Examinations_Name", "LENGTH(\"Name\") > 0");
                         });
@@ -194,7 +194,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("DoctorId")
                         .IsUnique();
 
-                    b.ToTable("Interns");
+                    b.ToTable("Interns", (string)null);
                 });
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.Professor", b =>
@@ -213,7 +213,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("DoctorId")
                         .IsUnique();
 
-                    b.ToTable("Professors");
+                    b.ToTable("Professors", (string)null);
                 });
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.Role", b =>
@@ -235,7 +235,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("NormalizedName")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.User", b =>
@@ -261,7 +261,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("NormalizedName")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.UserRole", b =>
@@ -278,7 +278,7 @@ namespace AspNetExample.Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("AspNetExample.Domain.Entities.Ward", b =>
@@ -307,7 +307,7 @@ namespace AspNetExample.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Wards", t =>
+                    b.ToTable("Wards", null, t =>
                         {
                             t.HasCheckConstraint("CK_Wards_Name", "LENGTH(\"Name\") > 0");
 

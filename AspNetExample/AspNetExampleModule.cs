@@ -36,6 +36,7 @@ public static class AspNetExampleModule
 
         service.AddScoped<IApplicationContextStartupService>(serviceProvider =>
             new ApplicationContextStartupService(
+                serviceProvider.GetRequiredService<IApplicationContextFactory>(),
                 serviceProvider.GetRequiredService<ApplicationContextUserManager>(),
                 serviceProvider.GetRequiredService<ApplicationContextRoleManager>(),
                 serviceProvider.GetRequiredService<ILogger<ApplicationContextStartupService>>(),

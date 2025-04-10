@@ -18,7 +18,7 @@ namespace AspNetExample;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         ComponentModelResourceManagerHelper.OverrideResourceManager();
 
@@ -130,8 +130,7 @@ public static class Program
 
         var app = builder.Build();
 
-        InitializeApplicationContextAsync(app)
-            .FireAndForgetSafeAsync();
+        await RunApplicationContextStartupAsync(app);
 
         if (!app.Environment.IsDevelopment())
             app.UseExceptionHandler("/Home/Error");
@@ -157,15 +156,17 @@ public static class Program
 
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}");
 
-        app.Run();
+        await app.RunAsync();
     }
 
-    private static async Task InitializeApplicationContextAsync(IHost app)
+    private static async Task RunApplicationContextStartupAsync(IHost app)
     {
         using var scope = app.Services.CreateScope();
 
-        await scope.ServiceProvider
-            .GetRequiredService<IApplicationContextStartupService>()
-            .InitializeAsync();
+        var applicationContextStartupService = scope.ServiceProvider
+            .GetRequiredService<IApplicationContextStartupService>();
+
+        await applicationContextStartupService.ApplyMigrationsAsync();
+        applicationContextStartupService.InitializeUsersAndRoles().FireAndForgetSafeAsync();
     }
 }

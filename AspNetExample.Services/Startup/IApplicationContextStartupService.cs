@@ -2,5 +2,6 @@
 
 public interface IApplicationContextStartupService
 {
-    Task InitializeAsync();
+    Task ApplyMigrationsAsync();
+    Task InitializeUsersAndRoles();
 }

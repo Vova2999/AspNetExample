@@ -1,4 +1,5 @@
 ﻿using AspNetExample.Common.Extensions;
+using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Services.Managers;
@@ -9,6 +10,7 @@ namespace AspNetExample.Services.Startup;
 
 public class ApplicationContextStartupService : IApplicationContextStartupService
 {
+    private readonly IApplicationContextFactory _applicationContextFactory;
     private readonly ApplicationContextUserManager _applicationContextUserManager;
     private readonly ApplicationContextRoleManager _applicationContextRoleManager;
     private readonly ILogger<ApplicationContextStartupService> _logger;
@@ -16,12 +18,14 @@ public class ApplicationContextStartupService : IApplicationContextStartupServic
     private readonly string? _initializeUserPassword;
 
     public ApplicationContextStartupService(
+        IApplicationContextFactory applicationContextFactory,
         ApplicationContextUserManager applicationContextUserManager,
         ApplicationContextRoleManager applicationContextRoleManager,
         ILogger<ApplicationContextStartupService> logger,
         string? initializeUserLogin,
         string? initializeUserPassword)
     {
+        _applicationContextFactory = applicationContextFactory;
         _applicationContextUserManager = applicationContextUserManager;
         _applicationContextRoleManager = applicationContextRoleManager;
         _logger = logger;
@@ -29,7 +33,35 @@ public class ApplicationContextStartupService : IApplicationContextStartupServic
         _initializeUserPassword = initializeUserPassword;
     }
 
-    public async Task InitializeAsync()
+    public async Task ApplyMigrationsAsync()
+    {
+        try
+        {
+            await ApplyMigrationsInternalAsync();
+        }
+        catch (Exception exception)
+        {
+            const string message = "Error on apply migrations";
+
+            _logger.LogCritical(exception, message);
+            throw new Exception(message, exception);
+        }
+    }
+
+    private async Task ApplyMigrationsInternalAsync()
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
+        _logger.LogInformation($"Applied migrations: {string.Join(", ", appliedMigrations)}");
+
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+        _logger.LogInformation($"Pending migrations: {string.Join(", ", pendingMigrations)}");
+
+        await context.Database.MigrateAsync();
+    }
+
+    public async Task InitializeUsersAndRoles()
     {
         try
         {
@@ -38,7 +70,10 @@ public class ApplicationContextStartupService : IApplicationContextStartupServic
         }
         catch (Exception exception)
         {
-            _logger.LogCritical(exception, "Error on initialize");
+            const string message = "Error on initialize users and roles";
+
+            _logger.LogCritical(exception, message);
+            throw new Exception(message, exception);
         }
     }
 
