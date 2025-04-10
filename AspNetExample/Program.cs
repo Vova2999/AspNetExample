@@ -4,6 +4,7 @@ using AspNetExample.Converters;
 using AspNetExample.Helpers;
 using AspNetExample.Middlewares;
 using AspNetExample.NSwag;
+using AspNetExample.Services.Migrations;
 using AspNetExample.Services.Startup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -130,7 +131,9 @@ public static class Program
 
         var app = builder.Build();
 
-        await RunApplicationContextStartupAsync(app);
+        await ApplyMigrationsAsync(app);
+        InitializeUsersAndRolesAsync(app)
+            .FireAndForgetSafeAsync();
 
         if (!app.Environment.IsDevelopment())
             app.UseExceptionHandler("/Home/Error");
@@ -159,14 +162,23 @@ public static class Program
         await app.RunAsync();
     }
 
-    private static async Task RunApplicationContextStartupAsync(IHost app)
+    private static async Task ApplyMigrationsAsync(IHost app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        var applicationContextMigrationsService = scope.ServiceProvider
+            .GetRequiredService<IApplicationContextMigrationsService>();
+
+        await applicationContextMigrationsService.ApplyMigrationsAsync();
+    }
+
+    private static async Task InitializeUsersAndRolesAsync(IHost app)
     {
         using var scope = app.Services.CreateScope();
 
         var applicationContextStartupService = scope.ServiceProvider
             .GetRequiredService<IApplicationContextStartupService>();
 
-        await applicationContextStartupService.ApplyMigrationsAsync();
-        applicationContextStartupService.InitializeUsersAndRoles().FireAndForgetSafeAsync();
+        await applicationContextStartupService.InitializeUsersAndRolesAsync();
     }
 }

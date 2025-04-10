@@ -3,6 +3,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AspNetExample.Services.Stores;
 
-public interface IApplicationContextRoleStore : IRoleStore<Role>
+public interface IApplicationContextRoleStore : IQueryableRoleStore<Role>
 {
 }

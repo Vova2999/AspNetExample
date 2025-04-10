@@ -1,7 +1,9 @@
 ﻿using AspNetExample.Database.Context.Factory;
 using AspNetExample.Database.Helpers;
 using AspNetExample.Domain.Entities;
+using AspNetExample.Extensions;
 using AspNetExample.Services.Managers;
+using AspNetExample.Services.Migrations;
 using AspNetExample.Services.Startup;
 using AspNetExample.Services.Stores;
 using Microsoft.AspNetCore.Identity;
@@ -13,8 +15,7 @@ public static class AspNetExampleModule
     public static void RegisterDependencies(IServiceCollection service, ConfigurationManager configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")!;
-        var initializeUserLogin = configuration["InitializeUser:Login"];
-        var initializeUserPassword = configuration["InitializeUser:Password"];
+        service.AddSingletonOptions<ApplicationContextStartupOptions>(configuration);
 
         service.AddSingleton<IApplicationContextFactory, ApplicationContextFactory>();
         service.AddSingleton(_ => ApplicationContextHelper.BuildOptions(connectionString));
@@ -29,18 +30,11 @@ public static class AspNetExampleModule
 
         service.AddScoped<IApplicationContextUserStore, ApplicationContextUserStore>();
         service.AddScoped<IApplicationContextRoleStore, ApplicationContextRoleStore>();
+        service.AddScoped<IApplicationContextStartupService, ApplicationContextStartupService>();
+        service.AddScoped<IApplicationContextMigrationsService, ApplicationContextMigrationsService>();
 
         service.AddIdentity<User, Role>()
             .AddUserStore<ApplicationContextUserStore>()
             .AddRoleStore<ApplicationContextRoleStore>();
-
-        service.AddScoped<IApplicationContextStartupService>(serviceProvider =>
-            new ApplicationContextStartupService(
-                serviceProvider.GetRequiredService<IApplicationContextFactory>(),
-                serviceProvider.GetRequiredService<ApplicationContextUserManager>(),
-                serviceProvider.GetRequiredService<ApplicationContextRoleManager>(),
-                serviceProvider.GetRequiredService<ILogger<ApplicationContextStartupService>>(),
-                initializeUserLogin,
-                initializeUserPassword));
     }
 }

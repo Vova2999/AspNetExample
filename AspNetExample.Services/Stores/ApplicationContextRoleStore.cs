@@ -7,10 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Services.Stores;
 
-public class ApplicationContextRoleStore :
-    IApplicationContextRoleStore,
-    IQueryableRoleStore<Role>,
-    IAsyncDisposable
+public class ApplicationContextRoleStore : IApplicationContextRoleStore, IAsyncDisposable
 {
     private readonly ApplicationContext _context;
 

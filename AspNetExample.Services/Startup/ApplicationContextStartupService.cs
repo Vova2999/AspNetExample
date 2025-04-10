@@ -1,5 +1,4 @@
 ﻿using AspNetExample.Common.Extensions;
-using AspNetExample.Database.Context.Factory;
 using AspNetExample.Domain;
 using AspNetExample.Domain.Entities;
 using AspNetExample.Services.Managers;
@@ -10,58 +9,24 @@ namespace AspNetExample.Services.Startup;
 
 public class ApplicationContextStartupService : IApplicationContextStartupService
 {
-    private readonly IApplicationContextFactory _applicationContextFactory;
     private readonly ApplicationContextUserManager _applicationContextUserManager;
     private readonly ApplicationContextRoleManager _applicationContextRoleManager;
+    private readonly ApplicationContextStartupOptions _applicationContextStartupOptions;
     private readonly ILogger<ApplicationContextStartupService> _logger;
-    private readonly string? _initializeUserLogin;
-    private readonly string? _initializeUserPassword;
 
     public ApplicationContextStartupService(
-        IApplicationContextFactory applicationContextFactory,
         ApplicationContextUserManager applicationContextUserManager,
         ApplicationContextRoleManager applicationContextRoleManager,
-        ILogger<ApplicationContextStartupService> logger,
-        string? initializeUserLogin,
-        string? initializeUserPassword)
+        ApplicationContextStartupOptions applicationContextStartupOptions,
+        ILogger<ApplicationContextStartupService> logger)
     {
-        _applicationContextFactory = applicationContextFactory;
         _applicationContextUserManager = applicationContextUserManager;
         _applicationContextRoleManager = applicationContextRoleManager;
+        _applicationContextStartupOptions = applicationContextStartupOptions;
         _logger = logger;
-        _initializeUserLogin = initializeUserLogin;
-        _initializeUserPassword = initializeUserPassword;
     }
 
-    public async Task ApplyMigrationsAsync()
-    {
-        try
-        {
-            await ApplyMigrationsInternalAsync();
-        }
-        catch (Exception exception)
-        {
-            const string message = "Error on apply migrations";
-
-            _logger.LogCritical(exception, message);
-            throw new Exception(message, exception);
-        }
-    }
-
-    private async Task ApplyMigrationsInternalAsync()
-    {
-        await using var context = _applicationContextFactory.Create();
-
-        var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
-        _logger.LogInformation($"Applied migrations: {string.Join(", ", appliedMigrations)}");
-
-        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-        _logger.LogInformation($"Pending migrations: {string.Join(", ", pendingMigrations)}");
-
-        await context.Database.MigrateAsync();
-    }
-
-    public async Task InitializeUsersAndRoles()
+    public async Task InitializeUsersAndRolesAsync()
     {
         try
         {
@@ -79,30 +44,28 @@ public class ApplicationContextStartupService : IApplicationContextStartupServic
 
     private async Task InitializeRolesAsync()
     {
-        var roles = await _applicationContextRoleManager.Roles.ToArrayAsync();
-        var normalizeAdminRole = _applicationContextRoleManager.NormalizeKey(RoleTokens.AdminRole);
-        var normalizeSwaggerRole = _applicationContextRoleManager.NormalizeKey(RoleTokens.SwaggerRole);
+        var adminRole = await _applicationContextRoleManager.FindByNameAsync(RoleTokens.AdminRole);
+        var swaggerRole = await _applicationContextRoleManager.FindByNameAsync(RoleTokens.SwaggerRole);
 
-        var hasAdminRole = roles.Any(role => role.NormalizedName == normalizeAdminRole);
-        var hasSwaggerRole = roles.Any(role => role.NormalizedName == normalizeSwaggerRole);
-
-        if (!hasAdminRole)
+        if (adminRole == null)
             await _applicationContextRoleManager.CreateAsync(new Role { Id = Guid.NewGuid(), Name = RoleTokens.AdminRole });
-        if (!hasSwaggerRole)
+        if (swaggerRole == null)
             await _applicationContextRoleManager.CreateAsync(new Role { Id = Guid.NewGuid(), Name = RoleTokens.SwaggerRole });
     }
 
     private async Task InitializeUsersAsync()
     {
-        if (_initializeUserLogin.IsNullOrEmpty() || _initializeUserPassword.IsNullOrEmpty())
+        var login = _applicationContextStartupOptions.InitializeUserLogin;
+        var password = _applicationContextStartupOptions.InitializeUserPassword;
+        if (login.IsNullOrEmpty() || password.IsNullOrEmpty())
             return;
 
         var hasUsers = await _applicationContextUserManager.Users.AnyAsync();
         if (hasUsers)
             return;
 
-        var user = new User { Id = Guid.NewGuid(), Name = _initializeUserLogin };
-        await _applicationContextUserManager.CreateAsync(user, _initializeUserPassword);
+        var user = new User { Id = Guid.NewGuid(), Name = login };
+        await _applicationContextUserManager.CreateAsync(user, password);
         await _applicationContextUserManager.AddToRolesAsync(user, [RoleTokens.AdminRole, RoleTokens.SwaggerRole]);
     }
 }

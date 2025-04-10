@@ -7,12 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetExample.Services.Stores;
 
-public class ApplicationContextUserStore :
-    IApplicationContextUserStore,
-    IQueryableUserStore<User>,
-    IUserPasswordStore<User>,
-    IUserRoleStore<User>,
-    IAsyncDisposable
+public class ApplicationContextUserStore : IApplicationContextUserStore, IAsyncDisposable
 {
     private readonly ApplicationContext _context;
     private readonly IApplicationContextRoleStore _applicationContextRoleStore;
