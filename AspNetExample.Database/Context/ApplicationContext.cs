@@ -212,12 +212,6 @@ public class ApplicationContext : DbContext
             .HasKey(x => new { x.UserId, x.RoleId });
 
         modelBuilder.Entity<UserRole>()
-            .HasIndex(x => x.UserId);
-
-        modelBuilder.Entity<UserRole>()
-            .HasIndex(x => x.RoleId);
-
-        modelBuilder.Entity<UserRole>()
             .HasOne(x => x.User)
             .WithMany(x => x.UserRoles)
             .HasForeignKey(x => x.UserId);
