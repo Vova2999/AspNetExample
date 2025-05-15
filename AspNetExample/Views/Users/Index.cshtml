@@ -36,8 +36,8 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(UserModel.Id), model => model.Users.First().Id, true)</th>
-        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(UserModel.Login), model => model.Users.First().Login)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(UserModel.Id), model => model.Users.First().Id, true)</th>
+        <th style="width: 25%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(UserModel.Login), model => model.Users.First().Login)</th>
         <th style="width: 25%;">Роли</th>
         <th style="width: 25%;" />
     </tr>
@@ -73,4 +73,4 @@
     </tbody>
 </table>
 
-@Html.DisplayPagination(Model)
+@Html.DisplayPagination(Context, Model)

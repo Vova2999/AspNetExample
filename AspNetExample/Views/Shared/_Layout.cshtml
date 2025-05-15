@@ -39,29 +39,6 @@
             event.preventDefault();
         }
 
-        function changeSortBy(sortBy) {
-            const url = new URL(window.location);
-
-            url.searchParams.delete('Page');
-
-            if (sortBy == '')
-                url.searchParams.delete('SortBy');
-            else
-                url.searchParams.set('SortBy', sortBy);
-
-            window.location.href = url;
-        }
-
-        function changePage(page) {
-            const url = new URL(window.location);
-
-            url.searchParams.delete('Page');
-            if (page > @Constants.FirstPage)
-                url.searchParams.set('Page', page);
-
-            window.location.href = url;
-        }
-
         function deleteConfirm(entityName, id) {
             return confirm('Удалить ' + entityName + ' (id = ' + id + ')?');
         }

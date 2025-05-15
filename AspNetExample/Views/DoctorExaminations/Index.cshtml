@@ -56,12 +56,12 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations.First().Id, true)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations.First().Date)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations.First().DiseaseName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations.First().DoctorName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.ExaminationName), model => model.DoctorExaminations.First().ExaminationName)</th>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorExaminationModel.WardName), model => model.DoctorExaminations.First().WardName)</th>
+        <th style="width: 10%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.Id), model => model.DoctorExaminations.First().Id, true)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.Date), model => model.DoctorExaminations.First().Date)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.DiseaseName), model => model.DoctorExaminations.First().DiseaseName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.DoctorName), model => model.DoctorExaminations.First().DoctorName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.ExaminationName), model => model.DoctorExaminations.First().ExaminationName)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorExaminationModel.WardName), model => model.DoctorExaminations.First().WardName)</th>
         <th style="width: 15%;" />
     </tr>
     </thead>
@@ -88,4 +88,4 @@
     </tbody>
 </table>
 
-@Html.DisplayPagination(Model)
+@Html.DisplayPagination(Context, Model)

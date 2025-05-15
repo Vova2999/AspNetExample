@@ -48,10 +48,10 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorModel.Id), model => model.Doctors.First().Id, true)</th>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorModel.Name), model => model.Doctors.First().Name)</th>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorModel.Salary), model => model.Doctors.First().Salary)</th>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(DoctorModel.Surname), model => model.Doctors.First().Surname)</th>
+        <th style="width: 15%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorModel.Id), model => model.Doctors.First().Id, true)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorModel.Name), model => model.Doctors.First().Name)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorModel.Salary), model => model.Doctors.First().Salary)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(DoctorModel.Surname), model => model.Doctors.First().Surname)</th>
         <th style="width: 25%;" />
     </tr>
     </thead>
@@ -76,4 +76,4 @@
     </tbody>
 </table>
 
-@Html.DisplayPagination(Model)
+@Html.DisplayPagination(Context, Model)

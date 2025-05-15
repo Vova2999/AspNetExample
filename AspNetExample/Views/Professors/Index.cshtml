@@ -36,8 +36,8 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.Id), model => model.Professors.First().Id, true)</th>
-        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Model.SortBy, nameof(ProfessorModel.DoctorName), model => model.Professors.First().DoctorName)</th>
+        <th style="width: 20%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(ProfessorModel.Id), model => model.Professors.First().Id, true)</th>
+        <th style="width: 30%;">@Html.DisplaySortColumnTitle(Context, Model.SortBy, nameof(ProfessorModel.DoctorName), model => model.Professors.First().DoctorName)</th>
         <th style="width: 50%;" />
     </tr>
     </thead>
@@ -60,4 +60,4 @@
     </tbody>
 </table>
 
-@Html.DisplayPagination(Model)
+@Html.DisplayPagination(Context, Model)
